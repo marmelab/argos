@@ -14,11 +14,3 @@ services:
             - CYPRESS_baseUrl=https://marmelab.com/react-admin-demo/#/
         working_dir: "/app"
         command: npm run cypress:open
-    node:
-        image: node:12
-        depends_on:
-            - cypress
-        volumes:
-            - .:/app
-        working_dir: "/app/server"
-        command: node index.js
