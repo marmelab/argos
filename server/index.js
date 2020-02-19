@@ -1,18 +1,7 @@
 const spawn = require("child_process").spawn;
+const readline = require("readline");
 
-const parseSize = str => {
-    const trimmedStr = str.trim();
-    if (trimmedStr.match(/GiB/)) {
-        return parseInt(trimmedStr, 10) * 1000000000;
-    }
-    if (trimmedStr.match(/MB/)) {
-        return parseInt(trimmedStr, 10) * 1000000;
-    }
-    if (trimmedStr.match(/kb/)) {
-        return parseInt(trimmedStr, 10) * 1000;
-    }
-    return parseInt(trimmedStr, 10);
-};
+const containerName = "argos_cypress_1";
 
 const initGetValueIncrement = () => {
     let previousValue = 0;
@@ -25,65 +14,23 @@ const initGetValueIncrement = () => {
 };
 
 const run = async () => {
-    child = spawn("docker", [
-        "stats",
-        "argos_cypress_1",
-        "--no-trunc",
-        "--format",
-        '{"memUsage":"{{ .MemUsage }}", "memPerc": "{{ .MemPerc }}", "cpuPerc":"{{ .CPUPerc }}", "networkIO": "{{ .NetIO }}", "blockIO": "{{ .BlockIO }}"}',
+    input = spawn("curl", [
+        "-v",
+        "--unix-socket",
+        "/var/run/docker.sock",
+        `http://localhost/containers/${containerName}/stats`,
     ]);
-    child.stdout.setEncoding("utf-8");
+    input.stdout.setEncoding("utf-8");
+    const readInterface = readline.createInterface({
+        input: input.stdout,
+        output: null,
+        console: false,
+    });
 
-    // let prevNetworkInput = null;
-    let prevNetworkOutput = null;
-    const getCurrentNetworkInput = initGetValueIncrement();
     return new Promise((resolve, reject) => {
-        child.stdout.on("data", function(data) {
-            const trimmedData = data.trim();
-            if (trimmedData === "\u001b[2J\u001b[H") {
-                console.log(data);
-                return;
-            }
-            try {
-                const json = JSON.parse(trimmedData);
-                const [usedMemory, availableMemory] = json.memUsage
-                    .split("/")
-                    .map(parseSize);
-                const [
-                    totalNetworkInput,
-                    totalNetworkOutput,
-                ] = json.networkIO.split("/").map(parseSize);
-                const [blockInput, blockOutput] = json.blockIO
-                    .split("/")
-                    .map(parseSize);
-
-                const currentNetworkInput = getCurrentNetworkInput(
-                    totalNetworkInput
-                );
-
-                const currentNetworkOutput = prevNetworkOutput
-                    ? totalNetworkOutput - prevNetworkOutput
-                    : null;
-                prevNetworkOutput = totalNetworkOutput;
-
-                const extendedData = {
-                    usedMemory,
-                    availableMemory,
-                    totalNetworkInput,
-                    currentNetworkInput,
-                    totalNetworkOutput,
-                    currentNetworkOutput,
-                    blockInput,
-                    blockOutput,
-                    cpuPerc: json.cpuPerc,
-                };
-                console.log(extendedData);
-            } catch (error) {
-                console.error(error, data);
-            }
+        readInterface.on("line", function(line) {
+            console.log(JSON.parse(line));
         });
-        child.stdout.on("end", resolve);
-        child.stdout.on("error", reject);
     });
 };
 
