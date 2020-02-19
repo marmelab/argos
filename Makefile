@@ -30,3 +30,6 @@ install-cypress: ## install cypress
 
 start-cypress-docker: ## Open cypress window.
 	docker-compose run --rm cypress npm run cypress:open
+
+start: ## Open cypress window.
+	docker-compose up
