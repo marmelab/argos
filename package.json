@@ -1,0 +1,11 @@
+{
+    "name": "argos",
+    "version": "1.0.0",
+    "scripts": {
+        "cypress:open": "cypress open",
+        "cypress:run": "cypress run"
+    },
+    "dependencies": {
+        "cypress": "4.0.2"
+    }
+}

@@ -1,0 +1,15 @@
+version: "3.5"
+
+services:
+    cypress:
+        image: cypress/browsers:chrome69
+        user: "${UID}:${GID}"
+        ipc: host
+        volumes:
+            - .:/app
+            - /tmp/.X11-unix:/tmp/.X11-unix
+        environment:
+            - DISPLAY
+            - CYPRESS_CACHE_FOLDER=/app/var/cypress_cache
+            - CYPRESS_baseUrl=https://marmelab.com/react-admin-demo/#/
+        working_dir: "/app"
