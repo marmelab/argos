@@ -6,14 +6,11 @@ const containerName = "argos_cypress_1";
 const get = path => data =>
     path.reduce((subData, key) => (subData ? subData[key] : undefined), data);
 
-const getTotalCpu = get(["cpu_stats", "system_cpu_usage"]);
-const getCpuUsage = get(["cpu_stats", "cpu_usage", "total_usage"]);
-const getKernelCpuUsage = get([
-    "cpu_stats",
-    "cpu_usage",
-    "usage_in_kernelmode",
-]);
-const getUserCpuUsage = get(["cpu_stats", "cpu_usage", "usage_in_usermode"]);
+const getCurAvailableCpu = get(["cpu_stats", "system_cpu_usage"]);
+const getPreAvailableCpu = get(["precpu_stats", "system_cpu_usage"]);
+const getCurCpuUsage = get(["cpu_stats", "cpu_usage", "usage_in_usermode"]);
+const getPreCpuUsage = get(["precpu_stats", "cpu_usage", "usage_in_usermode"]);
+const getOnlineCpus = get(["cpu_stats", "online_cpus"]);
 
 const getMemoryUsage = get(["memory_stats", "usage"]);
 const getMemoryMaxUsage = get(["memory_stats", "max_usage"]);
@@ -53,10 +50,11 @@ const run = async () => {
         readInterface.on("line", function(line) {
             const json = JSON.parse(line);
 
-            const totalCpu = getTotalCpu(json);
-            const cpuUsage = getCpuUsage(json);
-            const kernelCpuUsage = getKernelCpuUsage(json);
-            const userCpuUsage = getUserCpuUsage(json);
+            const curAvailableCpu = getCurAvailableCpu(json);
+            const preAvailableCpu = getPreAvailableCpu(json);
+
+            const curCpuUsage = getCurCpuUsage(json);
+            const preCpuUsage = getPreCpuUsage(json);
 
             const totalReceivedNetwork = getReceivedNetwork(json);
             const currentReceivedNetwork = getCurrentReceivedNetwork(
@@ -68,12 +66,21 @@ const run = async () => {
                 totalReceivedNetwork
             );
 
+            const onlineCpus = getOnlineCpus(json);
+
+            const availableCpu = curAvailableCpu - preAvailableCpu;
+            const cpuUsage = curCpuUsage - preCpuUsage;
+
+            // see https://github.com/moby/moby/blob/eb131c5383db8cac633919f82abad86c99bffbe5/cli/command/container/stats_helpers.go#L175
+            const cpuPercentage = (cpuUsage / availableCpu) * onlineCpus * 100;
+
             const result = {
+                date: new Date(),
                 cpu: {
-                    totalCpu,
+                    availableCpu,
                     cpuUsage,
-                    kernelCpuUsage,
-                    userCpuUsage,
+
+                    cpuPercentage,
                 },
                 memory: {
                     usage: getMemoryUsage(json),
