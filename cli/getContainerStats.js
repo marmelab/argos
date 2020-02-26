@@ -47,7 +47,7 @@ const getCurrentTransmittedNetwork = initGetValueIncrement();
 
 const getPreviousRawIO = initGetPreviousValue();
 
-const getContainerStats = async (containerName = "argos_cypress_1") => {
+const getContainerStats = async containerName => {
     input = spawn("curl", [
         "-v",
         "--unix-socket",
@@ -60,74 +60,85 @@ const getContainerStats = async (containerName = "argos_cypress_1") => {
         output: null,
         console: false,
     });
-    for await (const line of readInterface) {
-        const json = JSON.parse(line);
+    return new Promise((resolve, reject) => {
+        readInterface.on("line", function(line) {
+            const json = JSON.parse(line);
+            console.log({ json });
 
-        const curAvailableCpu = getCurAvailableCpu(json);
-        const preAvailableCpu = getPreAvailableCpu(json);
+            const curAvailableCpu = getCurAvailableCpu(json);
+            const preAvailableCpu = getPreAvailableCpu(json);
 
-        const curCpuUsage = getCurCpuUsage(json);
-        const preCpuUsage = getPreCpuUsage(json);
+            const curCpuUsage = getCurCpuUsage(json);
+            const preCpuUsage = getPreCpuUsage(json);
 
-        const totalReceivedNetwork = getReceivedNetwork(json);
-        const currentReceivedNetwork = getCurrentReceivedNetwork(
-            totalReceivedNetwork
-        );
+            const totalReceivedNetwork = getReceivedNetwork(json);
+            const currentReceivedNetwork = getCurrentReceivedNetwork(
+                totalReceivedNetwork
+            );
 
-        const totalTransmittedNetwork = getTransmittedNetwork(json);
-        const currentTransmittedNetwork = getCurrentTransmittedNetwork(
-            totalReceivedNetwork
-        );
+            const totalTransmittedNetwork = getTransmittedNetwork(json);
+            const currentTransmittedNetwork = getCurrentTransmittedNetwork(
+                totalReceivedNetwork
+            );
 
-        const onlineCpus = getOnlineCpus(json);
+            const onlineCpus = getOnlineCpus(json);
 
-        const availableCpu = curAvailableCpu - preAvailableCpu;
-        const cpuUsage = curCpuUsage - preCpuUsage;
+            const availableCpu = curAvailableCpu - preAvailableCpu;
+            const cpuUsage = curCpuUsage - preCpuUsage;
 
-        // see https://github.com/moby/moby/blob/eb131c5383db8cac633919f82abad86c99bffbe5/cli/command/container/stats_helpers.go#L175
-        const cpuPercentage = (cpuUsage / availableCpu) * onlineCpus * 100;
+            // see https://github.com/moby/moby/blob/eb131c5383db8cac633919f82abad86c99bffbe5/cli/command/container/stats_helpers.go#L175
+            const cpuPercentage = (cpuUsage / availableCpu) * onlineCpus * 100;
 
-        const rawIO = getIOServiceBytesRecursive(json);
+            const rawIO = getIOServiceBytesRecursive(json) || [];
 
-        const previousRawIO = getPreviousRawIO(rawIO);
+            const previousRawIO = getPreviousRawIO(rawIO);
 
-        const io = rawIO.reduce((acc, { major, minor, op, value }, index) => {
-            const previousValues = previousRawIO ? previousRawIO[index] : null;
+            const io = rawIO.reduce(
+                (acc, { major, minor, op, value }, index) => {
+                    const previousValues = previousRawIO
+                        ? previousRawIO[index]
+                        : null;
 
-            const key = `${major}.${minor}`;
-            return {
-                ...acc,
-                [key]: {
-                    ...(acc[key] || {}),
-                    [`total-${op}`]: value,
-                    [op]: value - (previousValues ? previousValues.value : 0),
+                    const key = `${major}.${minor}`;
+                    return {
+                        ...acc,
+                        [key]: {
+                            ...(acc[key] || {}),
+                            [`total-${op}`]: value,
+                            [op]:
+                                value -
+                                (previousValues ? previousValues.value : 0),
+                        },
+                    };
                 },
+                {}
+            );
+
+            const result = {
+                containerName,
+                date: json.read,
+                cpu: {
+                    availableCpu,
+                    cpuUsage,
+
+                    cpuPercentage,
+                },
+                memory: {
+                    usage: getMemoryUsage(json),
+                    maxUsage: getMemoryMaxUsage(json),
+                    limit: getMemoryLimit(json),
+                },
+                network: {
+                    totalReceived: totalReceivedNetwork,
+                    currentReceived: currentReceivedNetwork,
+                    totalTransmitted: totalTransmittedNetwork,
+                    currentTransmitted: currentTransmittedNetwork,
+                },
+                io,
             };
-        }, {});
-
-        const result = {
-            date: json.read,
-            cpu: {
-                availableCpu,
-                cpuUsage,
-
-                cpuPercentage,
-            },
-            memory: {
-                usage: getMemoryUsage(json),
-                maxUsage: getMemoryMaxUsage(json),
-                limit: getMemoryLimit(json),
-            },
-            network: {
-                totalReceived: totalReceivedNetwork,
-                currentReceived: currentReceivedNetwork,
-                totalTransmitted: totalTransmittedNetwork,
-                currentTransmitted: currentTransmittedNetwork,
-            },
-            io,
-        };
-        console.log(JSON.stringify(result, null, 4));
-    }
+            console.log(JSON.stringify(result, null, 4));
+        });
+    });
 };
 
 module.exports = getContainerStats;

@@ -19,7 +19,11 @@ const getAllContainersName = async () => {
             const containers = JSON.parse(result);
 
             resolve(
-                containers.reduce((acc, { Names }) => acc.concat(Names), [])
+                containers.reduce(
+                    (acc, { Names }) =>
+                        acc.concat(Names.map(name => name.replace("/", ""))),
+                    []
+                )
             );
         });
     });
