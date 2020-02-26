@@ -38,6 +38,7 @@ const getContainerStats = async containerName => {
         output: null,
         console: false,
     });
+    let isFirst = false;
     return new Promise((resolve, reject) => {
         readInterface.on("line", function(line) {
             const json = JSON.parse(line);
@@ -50,6 +51,13 @@ const getContainerStats = async containerName => {
             }
 
             const curAvailableCpu = getCurAvailableCpu(json);
+
+            if (!isFirst) {
+                fileStream.write(",");
+            }
+            if (isFirst) {
+                isFirst = false;
+            }
 
             const preAvailableCpu = getPreAvailableCpu(json);
 
