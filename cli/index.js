@@ -19,6 +19,11 @@ const getMemoryLimit = get(["memory_stats", "limit"]);
 const getReceivedNetwork = get(["networks", "eth0", "rx_bytes"]);
 const getTransmittedNetwork = get(["networks", "eth0", "tx_bytes"]);
 
+const getIOServiceBytesRecursive = get([
+    "blkio_stats",
+    "io_service_bytes_recursive",
+]);
+
 const initGetValueIncrement = () => {
     let previousValue = 0;
     return value => {
@@ -74,6 +79,32 @@ const run = async () => {
             // see https://github.com/moby/moby/blob/eb131c5383db8cac633919f82abad86c99bffbe5/cli/command/container/stats_helpers.go#L175
             const cpuPercentage = (cpuUsage / availableCpu) * onlineCpus * 100;
 
+            const ioServiceBytesRecursive = getIOServiceBytesRecursive(json);
+
+            const io = ioServiceBytesRecursive.reduce(
+                (acc, { major, minor, op, value }) => {
+                    if (major) {
+                        const key = `major-${major}`;
+                        return {
+                            ...acc,
+                            [key]: {
+                                ...(acc[key] || {}),
+                                [op]: value,
+                            },
+                        };
+                    }
+                    const key = `minor-${minor}`;
+                    return {
+                        ...acc,
+                        [key]: {
+                            ...(acc[key] || {}),
+                            [op]: value,
+                        },
+                    };
+                },
+                {}
+            );
+
             const result = {
                 date: new Date(),
                 cpu: {
@@ -93,8 +124,9 @@ const run = async () => {
                     totalTransmitted: totalTransmittedNetwork,
                     currentTransmitted: currentTransmittedNetwork,
                 },
+                io,
             };
-            console.log(result);
+            console.log(JSON.stringify(result, null, 4));
         });
     });
 };
