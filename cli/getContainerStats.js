@@ -1,5 +1,6 @@
 const spawn = require("child_process").spawn;
 const readline = require("readline");
+const fs = require("fs");
 
 const get = path => data =>
     path.reduce((subData, key) => (subData ? subData[key] : undefined), data);
@@ -55,6 +56,8 @@ const getContainerStats = async containerName => {
         `http://localhost/containers/${containerName}/stats`,
     ]);
     input.stdout.setEncoding("utf-8");
+    const fileStream = fs.createWriteStream(`./${containerName}.json`);
+    fileStream.write("[");
     const readInterface = readline.createInterface({
         input: input.stdout,
         output: null,
@@ -66,7 +69,8 @@ const getContainerStats = async containerName => {
 
             // the container has stopped
             if (json.read === "0001-01-01T00:00:00Z") {
-                Promise.resolve();
+                fileStream.write("]");
+                resolve();
                 return;
             }
 
@@ -141,7 +145,7 @@ const getContainerStats = async containerName => {
                 },
                 io,
             };
-            console.log(JSON.stringify(result, null, 4));
+            fileStream.write(JSON.stringify(result));
         });
     });
 };
