@@ -23,31 +23,6 @@ const getIOServiceBytesRecursive = get([
     "io_service_bytes_recursive",
 ]);
 
-const initGetValueIncrement = () => {
-    let previousValue = 0;
-    return value => {
-        const result = value - previousValue;
-        previousValue = value;
-
-        return result;
-    };
-};
-
-const initGetPreviousValue = () => {
-    let previousValue = null;
-    return value => {
-        const result = JSON.parse(JSON.stringify(previousValue));
-        previousValue = value;
-
-        return result;
-    };
-};
-
-const getCurrentReceivedNetwork = initGetValueIncrement();
-const getCurrentTransmittedNetwork = initGetValueIncrement();
-
-const getPreviousRawIO = initGetPreviousValue();
-
 const getContainerStats = async containerName => {
     input = spawn("curl", [
         "-v",
@@ -75,20 +50,15 @@ const getContainerStats = async containerName => {
             }
 
             const curAvailableCpu = getCurAvailableCpu(json);
+
             const preAvailableCpu = getPreAvailableCpu(json);
 
             const curCpuUsage = getCurCpuUsage(json);
             const preCpuUsage = getPreCpuUsage(json);
 
             const totalReceivedNetwork = getReceivedNetwork(json);
-            const currentReceivedNetwork = getCurrentReceivedNetwork(
-                totalReceivedNetwork
-            );
 
             const totalTransmittedNetwork = getTransmittedNetwork(json);
-            const currentTransmittedNetwork = getCurrentTransmittedNetwork(
-                totalReceivedNetwork
-            );
 
             const onlineCpus = getOnlineCpus(json);
 
@@ -100,23 +70,14 @@ const getContainerStats = async containerName => {
 
             const rawIO = getIOServiceBytesRecursive(json) || [];
 
-            const previousRawIO = getPreviousRawIO(rawIO);
-
             const io = rawIO.reduce(
                 (acc, { major, minor, op, value }, index) => {
-                    const previousValues = previousRawIO
-                        ? previousRawIO[index]
-                        : null;
-
                     const key = `${major}.${minor}`;
                     return {
                         ...acc,
                         [key]: {
                             ...(acc[key] || {}),
                             [`total-${op}`]: value,
-                            [op]:
-                                value -
-                                (previousValues ? previousValues.value : 0),
                         },
                     };
                 },
@@ -139,9 +100,7 @@ const getContainerStats = async containerName => {
                 },
                 network: {
                     totalReceived: totalReceivedNetwork,
-                    currentReceived: currentReceivedNetwork,
                     totalTransmitted: totalTransmittedNetwork,
-                    currentTransmitted: currentTransmittedNetwork,
                 },
                 io,
             };
