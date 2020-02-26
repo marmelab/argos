@@ -63,7 +63,12 @@ const getContainerStats = async containerName => {
     return new Promise((resolve, reject) => {
         readInterface.on("line", function(line) {
             const json = JSON.parse(line);
-            console.log({ json });
+
+            // the container has stopped
+            if (json.read === "0001-01-01T00:00:00Z") {
+                Promise.resolve();
+                return;
+            }
 
             const curAvailableCpu = getCurAvailableCpu(json);
             const preAvailableCpu = getPreAvailableCpu(json);
