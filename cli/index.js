@@ -34,8 +34,20 @@ const initGetValueIncrement = () => {
     };
 };
 
+const initGetPreviousValue = () => {
+    let previousValue = null;
+    return value => {
+        const result = JSON.parse(JSON.stringify(previousValue));
+        previousValue = value;
+
+        return result;
+    };
+};
+
 const getCurrentReceivedNetwork = initGetValueIncrement();
 const getCurrentTransmittedNetwork = initGetValueIncrement();
+
+const getPreviousRawIO = initGetPreviousValue();
 
 const run = async () => {
     input = spawn("curl", [
@@ -79,26 +91,25 @@ const run = async () => {
             // see https://github.com/moby/moby/blob/eb131c5383db8cac633919f82abad86c99bffbe5/cli/command/container/stats_helpers.go#L175
             const cpuPercentage = (cpuUsage / availableCpu) * onlineCpus * 100;
 
-            const ioServiceBytesRecursive = getIOServiceBytesRecursive(json);
+            const rawIO = getIOServiceBytesRecursive(json);
 
-            const io = ioServiceBytesRecursive.reduce(
-                (acc, { major, minor, op, value }) => {
-                    if (major) {
-                        const key = `major-${major}`;
-                        return {
-                            ...acc,
-                            [key]: {
-                                ...(acc[key] || {}),
-                                [op]: value,
-                            },
-                        };
-                    }
-                    const key = `minor-${minor}`;
+            const previousRawIO = getPreviousRawIO(rawIO);
+
+            const io = rawIO.reduce(
+                (acc, { major, minor, op, value }, index) => {
+                    const previousValues = previousRawIO
+                        ? previousRawIO[index]
+                        : null;
+
+                    const key = `${major}.${minor}`;
                     return {
                         ...acc,
                         [key]: {
                             ...(acc[key] || {}),
-                            [op]: value,
+                            [`total-${op}`]: value,
+                            [op]:
+                                value -
+                                (previousValues ? previousValues.value : 0),
                         },
                     };
                 },
@@ -106,7 +117,7 @@ const run = async () => {
             );
 
             const result = {
-                date: new Date(),
+                date: json.read,
                 cpu: {
                     availableCpu,
                     cpuUsage,
