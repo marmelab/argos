@@ -21,21 +21,20 @@ const getIOServiceBytesRecursive = get([
     "io_service_bytes_recursive",
 ]);
 
-const initGetValueIncrement = () => {
-    let previousValue = 0;
+const initGetPreviousValue = (previousValue = null) => {
     return value => {
-        const result = value - previousValue;
+        const result = JSON.parse(JSON.stringify(previousValue));
         previousValue = value;
 
         return result;
     };
 };
 
-const initGetPreviousValue = () => {
-    let previousValue = null;
+const initGetValueIncrement = () => {
+    const getPreviousValue = initGetPreviousValue(0);
     return value => {
-        const result = JSON.parse(JSON.stringify(previousValue));
-        previousValue = value;
+        const previousValue = getPreviousValue(value);
+        const result = value - previousValue;
 
         return result;
     };
