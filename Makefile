@@ -31,6 +31,9 @@ install-cypress: ## install cypress
 start-cypress-docker: ## Open cypress window.
 	docker-compose run --rm cypress npm run cypress:open
 
+cs-fix: # fix the code style
+	npm run cs-fix
+
 run: ## run stats cli
 	node cli/index.js
 

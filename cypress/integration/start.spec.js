@@ -1,5 +1,5 @@
-context("Start", () => {
-    it("start", () => {
-        cy.visit("");
+context('Start', () => {
+    it('start', () => {
+        cy.visit('');
     });
 });

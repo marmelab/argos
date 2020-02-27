@@ -1,36 +1,34 @@
-const spawn = require("child_process").spawn;
-const fs = require("fs");
-const split2 = require("split2");
+const spawn = require('child_process').spawn;
+const fs = require('fs');
+const split2 = require('split2');
 
-const parseStatsStreamTransform = require("./parseStatsStreamTransform");
-const toJSONStreamTransform = require("./toJSONStreamTransform");
+const parseStatsStreamTransform = require('./parseStatsStreamTransform');
+const toJSONStreamTransform = require('./toJSONStreamTransform');
 
 const getContainerStats = async containerName => {
-    input = spawn("curl", [
-        "-v",
-        "--unix-socket",
-        "/var/run/docker.sock",
+    input = spawn('curl', [
+        '-v',
+        '--unix-socket',
+        '/var/run/docker.sock',
         `http://localhost/containers/${containerName}/stats`,
     ]);
-    input.stdout.setEncoding("utf-8");
+    input.stdout.setEncoding('utf-8');
     return new Promise((resolve, reject) => {
         const fileStream = fs.createWriteStream(`./db/${containerName}.json`);
 
-        process.on("SIGINT", () =>
-            fileStream.write("]}")
-        );
+        process.on('SIGINT', () => fileStream.write(']}'));
 
         input.stdout
-            .on("error", reject)
+            .on('error', reject)
             .pipe(split2())
-            .on("error", reject)
+            .on('error', reject)
             .pipe(parseStatsStreamTransform())
-            .on("error", reject)
+            .on('error', reject)
             .pipe(toJSONStreamTransform(containerName))
-            .on("error", reject)
+            .on('error', reject)
             .pipe(fileStream)
-            .on("error", reject)
-            .on("end", resolve);
+            .on('error', reject)
+            .on('end', resolve);
     });
 };
 
