@@ -8,7 +8,6 @@ const toJSONStreamTransform = containerName =>
                     this.push(',');
                 }
                 if (!this.hasStarded) {
-                    this.push(`{"${containerName}":[`);
                     this.hasStarded = true;
                 }
                 this.push(chunk);
@@ -17,11 +16,6 @@ const toJSONStreamTransform = containerName =>
             } catch (error) {
                 this.emit('error', error);
             }
-        },
-        flush(done) {
-            this.push(']}');
-
-            done();
         },
     });
 
