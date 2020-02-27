@@ -21,8 +21,33 @@ const getIOServiceBytesRecursive = get([
     "io_service_bytes_recursive",
 ]);
 
-const parseStatsTransform = () =>
-    new stream.Transform({
+const initGetValueIncrement = () => {
+    let previousValue = 0;
+    return value => {
+        const result = value - previousValue;
+        previousValue = value;
+
+        return result;
+    };
+};
+
+const initGetPreviousValue = () => {
+    let previousValue = null;
+    return value => {
+        const result = JSON.parse(JSON.stringify(previousValue));
+        previousValue = value;
+
+        return result;
+    };
+};
+
+const parseStatsTransform = () => {
+    const getCurrentReceivedNetwork = initGetValueIncrement();
+    const getCurrentTransmittedNetwork = initGetValueIncrement();
+
+    const getPreviousRawIO = initGetPreviousValue();
+
+    return new stream.Transform({
         transform(chunk, encoding, next) {
             try {
                 const json = JSON.parse(chunk.toString());
@@ -41,9 +66,14 @@ const parseStatsTransform = () =>
                 const preCpuUsage = getPreCpuUsage(json);
 
                 const totalReceivedNetwork = getReceivedNetwork(json);
+                const currentReceivedNetwork = getCurrentReceivedNetwork(
+                    totalReceivedNetwork
+                );
 
                 const totalTransmittedNetwork = getTransmittedNetwork(json);
-
+                const currentTransmittedNetwork = getCurrentTransmittedNetwork(
+                    totalReceivedNetwork
+                );
                 const onlineCpus = getOnlineCpus(json);
 
                 const availableCpu = curAvailableCpu - preAvailableCpu;
@@ -54,15 +84,23 @@ const parseStatsTransform = () =>
                     (cpuUsage / availableCpu) * onlineCpus * 100;
 
                 const rawIO = getIOServiceBytesRecursive(json) || [];
+                const previousRawIO = getPreviousRawIO(rawIO);
 
                 const io = rawIO.reduce(
                     (acc, { major, minor, op, value }, index) => {
+                        const previousValues = previousRawIO
+                            ? previousRawIO[index]
+                            : null;
+
                         const key = `${major}.${minor}`;
                         return {
                             ...acc,
                             [key]: {
                                 ...(acc[key] || {}),
                                 [`total-${op}`]: value,
+                                [op]:
+                                    value -
+                                    (previousValues ? previousValues.value : 0),
                             },
                         };
                     },
@@ -83,7 +121,9 @@ const parseStatsTransform = () =>
                     },
                     network: {
                         totalReceived: totalReceivedNetwork,
+                        currentReceived: currentReceivedNetwork,
                         totalTransmitted: totalTransmittedNetwork,
+                        currentTransmitted: currentTransmittedNetwork,
                     },
                     io,
                 };
@@ -96,5 +136,6 @@ const parseStatsTransform = () =>
             }
         },
     });
+};
 
 module.exports = parseStatsTransform;
