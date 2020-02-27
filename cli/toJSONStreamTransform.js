@@ -1,6 +1,6 @@
 const stream = require("stream");
 
-const toJSONStreamTransform = () =>
+const toJSONStreamTransform = (containerName) =>
     new stream.Transform({
         transform(chunk, encoding, next) {
             try {
@@ -8,7 +8,7 @@ const toJSONStreamTransform = () =>
                     this.push(",");
                 }
                 if (!this.hasStarded) {
-                    this.push("[");
+                    this.push(`{"${containerName}":[`);
                     this.hasStarded = true;
                 }
                 this.push(chunk);
@@ -19,7 +19,7 @@ const toJSONStreamTransform = () =>
             }
         },
         flush(done) {
-            this.push("]");
+            this.push("]}");
 
             done();
         },
