@@ -14,14 +14,14 @@ const getContainerStats = async containerName => {
     ]);
     input.stdout.setEncoding("utf-8");
     return new Promise((resolve, reject) => {
-        const fileStream = fs.createWriteStream(`./${containerName}.json`);
+        const fileStream = fs.createWriteStream(`./data/${containerName}.json`);
         input.stdout
             .on("error", reject)
             .pipe(split2())
             .on("error", reject)
-            .pipe(parseStatsStreamTransform)
+            .pipe(parseStatsStreamTransform())
             .on("error", reject)
-            .pipe(toJSONStreamTransform)
+            .pipe(toJSONStreamTransform())
             .on("error", reject)
             .pipe(fileStream)
             .on("error", reject)

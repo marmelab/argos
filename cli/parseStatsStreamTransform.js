@@ -21,78 +21,80 @@ const getIOServiceBytesRecursive = get([
     "io_service_bytes_recursive",
 ]);
 
-const parseStatsTransform = new stream.Transform({
-    transform(chunk, encoding, next) {
-        try {
-            const json = JSON.parse(chunk.toString());
+const parseStatsTransform = () =>
+    new stream.Transform({
+        transform(chunk, encoding, next) {
+            try {
+                const json = JSON.parse(chunk.toString());
 
-            // no data: discarding
-            if (json.read === "0001-01-01T00:00:00Z") {
+                // no data: discarding
+                if (json.read === "0001-01-01T00:00:00Z") {
+                    next();
+                    return;
+                }
+
+                const curAvailableCpu = getCurAvailableCpu(json);
+
+                const preAvailableCpu = getPreAvailableCpu(json);
+
+                const curCpuUsage = getCurCpuUsage(json);
+                const preCpuUsage = getPreCpuUsage(json);
+
+                const totalReceivedNetwork = getReceivedNetwork(json);
+
+                const totalTransmittedNetwork = getTransmittedNetwork(json);
+
+                const onlineCpus = getOnlineCpus(json);
+
+                const availableCpu = curAvailableCpu - preAvailableCpu;
+                const cpuUsage = curCpuUsage - preCpuUsage;
+
+                // see https://github.com/moby/moby/blob/eb131c5383db8cac633919f82abad86c99bffbe5/cli/command/container/stats_helpers.go#L175
+                const cpuPercentage =
+                    (cpuUsage / availableCpu) * onlineCpus * 100;
+
+                const rawIO = getIOServiceBytesRecursive(json) || [];
+
+                const io = rawIO.reduce(
+                    (acc, { major, minor, op, value }, index) => {
+                        const key = `${major}.${minor}`;
+                        return {
+                            ...acc,
+                            [key]: {
+                                ...(acc[key] || {}),
+                                [`total-${op}`]: value,
+                            },
+                        };
+                    },
+                    {}
+                );
+
+                const result = {
+                    date: json.read,
+                    cpu: {
+                        availableCpu,
+                        cpuUsage,
+                        cpuPercentage,
+                    },
+                    memory: {
+                        usage: getMemoryUsage(json),
+                        maxUsage: getMemoryMaxUsage(json),
+                        limit: getMemoryLimit(json),
+                    },
+                    network: {
+                        totalReceived: totalReceivedNetwork,
+                        totalTransmitted: totalTransmittedNetwork,
+                    },
+                    io,
+                };
+
+                this.push(JSON.stringify(result));
+
                 next();
-                return;
+            } catch (error) {
+                this.emit("error", error);
             }
-
-            const curAvailableCpu = getCurAvailableCpu(json);
-
-            const preAvailableCpu = getPreAvailableCpu(json);
-
-            const curCpuUsage = getCurCpuUsage(json);
-            const preCpuUsage = getPreCpuUsage(json);
-
-            const totalReceivedNetwork = getReceivedNetwork(json);
-
-            const totalTransmittedNetwork = getTransmittedNetwork(json);
-
-            const onlineCpus = getOnlineCpus(json);
-
-            const availableCpu = curAvailableCpu - preAvailableCpu;
-            const cpuUsage = curCpuUsage - preCpuUsage;
-
-            // see https://github.com/moby/moby/blob/eb131c5383db8cac633919f82abad86c99bffbe5/cli/command/container/stats_helpers.go#L175
-            const cpuPercentage = (cpuUsage / availableCpu) * onlineCpus * 100;
-
-            const rawIO = getIOServiceBytesRecursive(json) || [];
-
-            const io = rawIO.reduce(
-                (acc, { major, minor, op, value }, index) => {
-                    const key = `${major}.${minor}`;
-                    return {
-                        ...acc,
-                        [key]: {
-                            ...(acc[key] || {}),
-                            [`total-${op}`]: value,
-                        },
-                    };
-                },
-                {}
-            );
-
-            const result = {
-                date: json.read,
-                cpu: {
-                    availableCpu,
-                    cpuUsage,
-                    cpuPercentage,
-                },
-                memory: {
-                    usage: getMemoryUsage(json),
-                    maxUsage: getMemoryMaxUsage(json),
-                    limit: getMemoryLimit(json),
-                },
-                network: {
-                    totalReceived: totalReceivedNetwork,
-                    totalTransmitted: totalTransmittedNetwork,
-                },
-                io,
-            };
-
-            this.push(JSON.stringify(result));
-
-            next();
-        } catch (error) {
-            this.emit("error", error);
-        }
-    },
-});
+        },
+    });
 
 module.exports = parseStatsTransform;
