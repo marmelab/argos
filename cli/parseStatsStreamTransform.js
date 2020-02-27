@@ -1,4 +1,3 @@
-// taken from https://gist.github.com/NotWoods/39e1f7d29a56be0d012461cde409e285
 const stream = require("stream");
 
 const get = path => data =>
@@ -27,7 +26,7 @@ const parseStatsTransform = new stream.Transform({
         try {
             const json = JSON.parse(chunk.toString());
 
-            // no data discarding
+            // no data: discarding
             if (json.read === "0001-01-01T00:00:00Z") {
                 next();
                 return;
@@ -91,7 +90,6 @@ const parseStatsTransform = new stream.Transform({
 
             next();
         } catch (error) {
-            console.error({ error, chunk: chunk.toString() });
             this.emit("error", error);
         }
     },
