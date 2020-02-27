@@ -33,3 +33,6 @@ start-cypress-docker: ## Open cypress window.
 
 run: ## run stats cli
 	node cli/index.js
+
+api: # run api server
+	npm run start:server
