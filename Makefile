@@ -39,3 +39,6 @@ run: ## run stats cli
 
 api: # run api server
 	npm run start:server
+
+start:
+	npm run start
