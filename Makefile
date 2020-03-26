@@ -35,7 +35,7 @@ cs-fix: # fix the code style
 	npm run cs-fix
 
 run: ## run stats cli
-	node cli/index.js
+	node packages/cli/src/index.js
 
 api: # run api server
 	npm run start:server
