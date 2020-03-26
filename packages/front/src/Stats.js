@@ -32,6 +32,7 @@ export const Stats = ({ container }) => {
 
     return (
         <div>
+            <h1>{container}</h1>
             <Chart title="cpu percentage" data={cpuPercentage} />
             <Chart title="memory usage" data={memoryUsage} />
             <Chart title="network received" data={networkReceived} />
