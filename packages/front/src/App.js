@@ -1,15 +1,13 @@
-import React from "react";
-import { Chart } from "./Chart";
+import React from 'react';
+import { Chart } from './Chart';
 
-import { useFetch } from "./useFetch";
+import { useFetch } from './useFetch';
 
 export const App = () => {
-    const { isLoading, response } = useFetch(
-        "http://localhost:3002/arte-test_nginx_1"
-    );
+    const { isLoading, response } = useFetch('http://localhost:3002/angry_mayer');
 
     if (isLoading || !response) {
-        return "...";
+        return '...';
     }
 
     const cpuPercentage = response.map(({ date, cpu }) => ({
