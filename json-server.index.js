@@ -8,39 +8,20 @@ const port = 3002;
 
 const dbPath = './db/';
 
-let endpoints = [];
-let obj = {};
-let files = fs.readdirSync(path.resolve(__dirname, dbPath));
+let files = fs.readdirSync(path.resolve(__dirname, dbPath)).filter(name => name.match(/.json$/));
 
 console.log('\n');
 
-const isJson = str => {
-    try {
-        JSON.parse(str);
-    } catch (e) {
-        return false;
-    }
-    return true;
-};
+const obj = files.reduce((acc, fileName) => {
+    jsonObject = fs.readFileSync(dbPath + fileName);
+    const key = fileName.replace('.json', '');
 
-files.forEach(file => {
-    if (file.indexOf('.json') > -1) {
-        jsonObject = JSON.parse(fs.readFileSync(dbPath + file));
+    return { ...acc, [key]: JSON.parse(`[${jsonObject}]`) };
+}, {});
 
-        if (isJson(fs.readFileSync(dbPath + file))) {
-            Object.keys(jsonObject).forEach(idx => endpoints.push(idx));
-            console.log(`🗒    JSON file loaded : ${file}`);
-            _.extend(obj, require(path.resolve(__dirname, dbPath, file)));
-        }
-    }
-});
+const endpoints = Object.keys(obj);
 
-const objOrdered = {};
-Object.keys(obj)
-    .sort()
-    .forEach(key => (objOrdered[key] = obj[key]));
-
-const router = jsonServer.router(objOrdered);
+const router = jsonServer.router(obj);
 
 server.use(jsonServer.defaults());
 server.use(router);
