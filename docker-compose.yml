@@ -1,9 +1,9 @@
-version: "3.5"
+version: '3.5'
 
 services:
     cypress:
         image: cypress/browsers:chrome69
-        user: "${UID}:${GID}"
+        user: '${UID}:${GID}'
         ipc: host
         volumes:
             - .:/app
@@ -12,5 +12,13 @@ services:
             - DISPLAY
             - CYPRESS_CACHE_FOLDER=/app/var/cypress_cache
             - CYPRESS_baseUrl=https://marmelab.com/react-admin-demo/#/
-        working_dir: "/app"
+        working_dir: '/app'
         command: npm run cypress:open
+    cli:
+        image: node:10.15.3-stretch-slim
+        environment:
+        volumes:
+            - ./:/app
+            - /var/run/docker.sock:/var/run/docker.sock
+        working_dir: '/app/packages/cli'
+        command: node src/index.js
