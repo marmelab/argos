@@ -5,7 +5,7 @@ const split2 = require('split2');
 const parseStatsStreamTransform = require('./parseStatsStreamTransform');
 const toJSONStreamTransform = require('./toJSONStreamTransform');
 
-const getContainerStats = async containerName => {
+const getContainerStats = measureName => async containerName => {
     const input = spawn('curl', [
         '-v',
         '--unix-socket',
@@ -22,7 +22,7 @@ const getContainerStats = async containerName => {
             .on('error', reject)
             .pipe(split2())
             .on('error', reject)
-            .pipe(parseStatsStreamTransform())
+            .pipe(parseStatsStreamTransform(containerName, measureName))
             .on('error', reject)
             .pipe(toJSONStreamTransform(containerName))
             .on('error', reject)

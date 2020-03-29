@@ -36,7 +36,7 @@ const initGetValueIncrement = () => {
     };
 };
 
-const parseStatsTransform = () => {
+const parseStatsTransform = (containerName, measureName) => {
     const getCurrentReceivedNetwork = initGetValueIncrement();
     const getCurrentTransmittedNetwork = initGetValueIncrement();
 
@@ -91,6 +91,8 @@ const parseStatsTransform = () => {
                 }, {});
 
                 const result = {
+                    measureName,
+                    containerName,
                     date: json.read,
                     cpu: {
                         availableCpu,

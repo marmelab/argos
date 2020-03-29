@@ -1,6 +1,6 @@
 const stream = require('stream');
 
-const toJSONStreamTransform = containerName =>
+const toJSONStreamTransform = () =>
     new stream.Transform({
         transform(chunk, encoding, next) {
             try {
