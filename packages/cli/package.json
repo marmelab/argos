@@ -3,7 +3,8 @@
     "version": "1.0.0",
     "scripts": {},
     "dependencies": {
-        "split2": "3.1.1"
+        "split2": "3.1.1",
+        "mongodb": "3.5.5"
     },
     "devDependencies": {}
 }

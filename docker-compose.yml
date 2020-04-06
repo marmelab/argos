@@ -1,24 +1,27 @@
 version: '3.5'
 
 services:
-    cypress:
-        image: cypress/browsers:chrome69
-        user: '${UID}:${GID}'
-        ipc: host
-        volumes:
-            - .:/app
-            - /tmp/.X11-unix:/tmp/.X11-unix
-        environment:
-            - DISPLAY
-            - CYPRESS_CACHE_FOLDER=/app/var/cypress_cache
-            - CYPRESS_baseUrl=https://marmelab.com/react-admin-demo/#/
-        working_dir: '/app'
-        command: npm run cypress:open
     cli:
-        image: node:10.15.3-stretch-slim
+        build: ./packages/cli
         environment:
+            MONGO_HOST: mongo
+            MONGO_PORT: 27017
+            MONGO_USER: root
+            MONGO_PASSWORD: secret
+            NAME: ${NAME}
+            WAIT_HOSTS: mongo:27017
         volumes:
             - ./:/app
             - /var/run/docker.sock:/var/run/docker.sock
         working_dir: '/app/packages/cli'
         command: node src/index.js
+        links:
+            - mongo
+        depends_on:
+            - mongo
+    mongo:
+        image: mongo
+        volumes:
+            - ./data:/data/db
+        ports:
+            - 27017:27017

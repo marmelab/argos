@@ -12,8 +12,6 @@ export const App = () => {
         return '...';
     }
 
-    console.log({ response });
-
     const { containers } = response;
 
     return (

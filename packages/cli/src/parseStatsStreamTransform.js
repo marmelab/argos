@@ -79,7 +79,7 @@ const parseStatsTransform = (containerName, measureName) => {
                 const io = rawIO.reduce((acc, { major, minor, op, value }, index) => {
                     const previousValues = previousRawIO ? previousRawIO[index] : null;
 
-                    const key = `${major}.${minor}`;
+                    const key = `${major}-${minor}`;
                     return {
                         ...acc,
                         [key]: {

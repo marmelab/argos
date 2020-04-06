@@ -1,9 +1,9 @@
 const spawn = require('child_process').spawn;
-const fs = require('fs');
 const split2 = require('split2');
+const stream = require('stream');
 
 const parseStatsStreamTransform = require('./parseStatsStreamTransform');
-const toJSONStreamTransform = require('./toJSONStreamTransform');
+const getMongoClient = require('./getMongoClient');
 
 const getContainerStats = measureName => async containerName => {
     const input = spawn('curl', [
@@ -13,10 +13,19 @@ const getContainerStats = measureName => async containerName => {
         `http://localhost/containers/${containerName}/stats`,
     ]);
     input.stdout.setEncoding('utf-8');
-    return new Promise((resolve, reject) => {
-        const fileStream = fs.createWriteStream(`./db/${containerName}.json`);
+    const mongoClient = await getMongoClient();
 
-        process.on('SIGINT', () => fileStream.write(']}'));
+    const db = mongoClient.db('db');
+    const collection = db.collection('measure');
+    return new Promise((resolve, reject) => {
+        var strm = new stream.Writable({ objectMode: true, highWaterMark: 16 });
+        strm._write = function(obj, enc, cb) {
+            collection.insertOne(JSON.parse(obj.toString()), cb);
+        };
+
+        strm.destroy = function() {
+            this.emit('close');
+        };
 
         input.stdout
             .on('error', reject)
@@ -24,9 +33,7 @@ const getContainerStats = measureName => async containerName => {
             .on('error', reject)
             .pipe(parseStatsStreamTransform(containerName, measureName))
             .on('error', reject)
-            .pipe(toJSONStreamTransform(containerName))
-            .on('error', reject)
-            .pipe(fileStream)
+            .pipe(strm)
             .on('error', reject)
             .on('end', resolve);
     });

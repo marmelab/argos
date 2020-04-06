@@ -40,5 +40,8 @@ run: ## run stats cli
 api: # run api server
 	npm run start:server
 
+connect-mongo:
+	docker exec -it argos_mongo_1 mongo db
+
 start:
 	npm run start
