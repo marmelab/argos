@@ -3,8 +3,6 @@ import React from 'react';
 import { Stats } from './Stats';
 import { useFetch } from './useFetch';
 
-const containerName = 'angry_mayer';
-
 export const App = () => {
     const { isLoading, response } = useFetch('http://localhost:3002/containers');
 
