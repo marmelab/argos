@@ -25,6 +25,7 @@ const getContainerStats = measureName => async containerName => {
 
         strm.destroy = function() {
             this.emit('close');
+            mongoClient.close();
         };
 
         input.stdout
@@ -36,6 +37,9 @@ const getContainerStats = measureName => async containerName => {
             .pipe(strm)
             .on('error', reject)
             .on('end', resolve);
+    }).catch(error => {
+        console.error(`An error occured while measuring ${containerName}`, error);
+        mongoClient.close();
     });
 };
 
