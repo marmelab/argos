@@ -19,6 +19,26 @@ services:
             - mongo
         depends_on:
             - mongo
+    server:
+        build: ./packages/cli
+        environment:
+            MONGO_HOST: mongo
+            MONGO_PORT: 27017
+            MONGO_USER: root
+            MONGO_PASSWORD: secret
+            NAME: ${NAME}
+            WAIT_HOSTS: mongo:27017
+        volumes:
+            - ./:/app
+            - /var/run/docker.sock:/var/run/docker.sock
+        ports:
+            - 3003:3003
+        working_dir: '/app/packages/server'
+        command: node src/index.js
+        links:
+            - mongo
+        depends_on:
+            - mongo
     mongo:
         image: mongo
         volumes:
