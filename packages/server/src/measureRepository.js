@@ -12,6 +12,13 @@ const getContainers = async () => {
     return collection.distinct('containerName');
 };
 
+const getMeasureForContainer = async containerName => {
+    const collection = await getMeasureCollection();
+
+    return collection.find({ containerName }).toArray();
+};
+
 module.exports = {
     getContainers,
+    getMeasureForContainer,
 };
