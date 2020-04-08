@@ -1,6 +1,11 @@
 const Koa = require('koa');
 const Router = require('koa-router');
 const measureRepository = require('./measureRepository');
+const webpack = require('webpack');
+const koaWebpack = require('koa-webpack');
+const path = require('path');
+
+const webpackConfig = require('../../front/webpack.config');
 
 const server = new Koa();
 
@@ -16,6 +21,22 @@ router.get('/measure/:containerName', async ctx => {
     ctx.status = 200;
 });
 
-server.use(router.routes()).use(router.allowedMethods());
+const startServer = async () => {
+    server.use(router.routes()).use(router.allowedMethods());
 
-server.listen(3003);
+    const compiler = webpack(webpackConfig);
+    const middleware = await koaWebpack({ compiler });
+
+    server.use(middleware);
+
+    server.use(async ctx => {
+        const filename = path.resolve(webpackConfig.output.path, 'index.html');
+        console.log({ filename });
+        ctx.response.type = 'html';
+        ctx.response.body = middleware.devMiddleware.fileSystem.createReadStream(filename);
+    });
+
+    server.listen(3003);
+};
+
+startServer();

@@ -4,7 +4,7 @@ import { Chart } from './Chart';
 import { useFetch } from './useFetch';
 
 export const Stats = ({ container }) => {
-    const { isLoading, response } = useFetch(`http://localhost:3002/${container}`);
+    const { isLoading, response } = useFetch(`http://localhost:3003/measure/${container}`);
 
     if (isLoading || !response) {
         return '...';
