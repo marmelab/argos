@@ -7,17 +7,23 @@ const mongoPassword = process.env.MONGO_PASSWORD;
 
 const defaultUrl = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mongoPort}`;
 
-const getMongoClient = async (mongoUrl = defaultUrl) => {
-    const client = new MongoClient(mongoUrl, { useUnifiedTopology: true });
+let db;
+
+const getMongo = async (mongoUrl = defaultUrl) => {
+    if (db) {
+        return db;
+    }
     return new Promise((resolve, reject) => {
+        const client = new MongoClient(mongoUrl, { useUnifiedTopology: true });
         client.connect(function(err) {
             if (err) {
                 reject(err);
                 return;
             }
-            resolve(client);
+            db = client.db('db');
+            resolve(db);
         });
     });
 };
 
-module.exports = getMongoClient;
+module.exports = getMongo;

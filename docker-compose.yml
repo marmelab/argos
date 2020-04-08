@@ -30,7 +30,6 @@ services:
             WAIT_HOSTS: mongo:27017
         volumes:
             - ./:/app
-            - /var/run/docker.sock:/var/run/docker.sock
         ports:
             - 3003:3003
         working_dir: '/app/packages/server'
@@ -39,6 +38,11 @@ services:
             - mongo
         depends_on:
             - mongo
+    node:
+        build: ./packages/cli
+        volumes:
+            - ./:/app
+        working_dir: '/app'
     mongo:
         image: mongo
         volumes:

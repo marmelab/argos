@@ -1,15 +1,16 @@
-const express = require('express');
-const getMongoClient = require('./getMongoClient');
+const Koa = require('koa');
+const Router = require('koa-router');
+const measureRepository = require('./measureRepository');
 
-const server = express();
+const server = new Koa();
 
-server.get('/containers', async (req, res, next) => {
-    const mongoClient = await getMongoClient();
-    const db = mongoClient.db('db');
-    const collection = db.collection('measure');
-    const containers = await collection.distinct('containerName');
-    res.send(containers);
-    res.status = 200;
+const router = new Router();
+
+router.get('/containers', async (ctx, next) => {
+    ctx.body = await measureRepository.getContainers();
+    ctx.status = 200;
 });
+
+server.use(router.routes()).use(router.allowedMethods());
 
 server.listen(3003);

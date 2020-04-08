@@ -15,21 +15,7 @@ export UID = $(USER_ID)
 export GID = $(GROUP_ID)
 
 install: ## fresh install all services in docker for local development
-	$(MAKE) --quiet --no-print-directory install-js-dep
-
-install-js-dep:
-	docker-compose run --no-deps --rm cypress bash -ci 'npm install'
-	$(MAKE) --quiet --no-print-directory install-cypress 1>/dev/null
-
-install-cypress: ## install cypress
-	docker-compose run --rm --no-deps \
-		cypress bash -ci ' \
-			CI=true ./node_modules/.bin/cypress install \
-	'
-	docker-compose down || true
-
-start-cypress-docker: ## Open cypress window.
-	docker-compose run --rm cypress npm run cypress:open
+	docker-compose run --no-deps --rm node bash -ci 'yarn'
 
 cs-fix: # fix the code style
 	npm run cs-fix
