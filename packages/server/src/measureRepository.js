@@ -15,7 +15,10 @@ const getContainers = async () => {
 const getMeasureForContainer = async containerName => {
     const collection = await getMeasureCollection();
 
-    return collection.find({ containerName }).toArray();
+    return collection
+        .find({ containerName })
+        .sort({ time: 1 })
+        .toArray();
 };
 
 module.exports = {
