@@ -3,7 +3,7 @@ const split2 = require('split2');
 const stream = require('stream');
 
 const parseStatsStreamTransform = require('./parseStatsStreamTransform');
-const getMongoClient = require('./getMongoClient');
+const getMongo = require('./getMongo');
 
 const getContainerStats = measureName => async containerName => {
     const input = spawn('curl', [
@@ -13,9 +13,8 @@ const getContainerStats = measureName => async containerName => {
         `http://localhost/containers/${containerName}/stats`,
     ]);
     input.stdout.setEncoding('utf-8');
-    const mongoClient = await getMongoClient();
+    const db = await getMongo();
 
-    const db = mongoClient.db('db');
     const collection = db.collection('measure');
     return new Promise((resolve, reject) => {
         var strm = new stream.Writable({ objectMode: true, highWaterMark: 16 });
@@ -25,7 +24,6 @@ const getContainerStats = measureName => async containerName => {
 
         strm.destroy = function() {
             this.emit('close');
-            mongoClient.close();
         };
 
         input.stdout
@@ -39,7 +37,6 @@ const getContainerStats = measureName => async containerName => {
             .on('end', resolve);
     }).catch(error => {
         console.error(`An error occured while measuring ${containerName}`, error);
-        mongoClient.close();
     });
 };
 

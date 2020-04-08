@@ -20,6 +20,9 @@ const getMongo = async (mongoUrl = defaultUrl) => {
                 reject(err);
                 return;
             }
+            process.on('SIGTERM', () => {
+                client.close();
+            });
             db = client.db('db');
             resolve(db);
         });

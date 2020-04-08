@@ -7,7 +7,12 @@ const mongoPassword = process.env.MONGO_PASSWORD;
 
 const defaultUrl = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mongoPort}`;
 
-const getMongoClient = async (mongoUrl = defaultUrl) => {
+let db;
+
+const getMongo = async (mongoUrl = defaultUrl) => {
+    if (db) {
+        return db;
+    }
     const client = new MongoClient(mongoUrl, { useUnifiedTopology: true });
     return new Promise((resolve, reject) => {
         client.connect(function(err) {
@@ -15,9 +20,13 @@ const getMongoClient = async (mongoUrl = defaultUrl) => {
                 reject(err);
                 return;
             }
-            resolve(client);
+            process.on('SIGTERM', () => {
+                client.close();
+            });
+            db = client.db('db');
+            resolve(db);
         });
     });
 };
 
-module.exports = getMongoClient;
+module.exports = getMongo;
