@@ -6,10 +6,17 @@ const onStartContainer = eventListener => {
         '-v',
         '--unix-socket',
         '/var/run/docker.sock',
-        `http://localhost/events?filters=${encodeURIComponent(JSON.stringify({ event: ['start'] }))}`,
+        `http://localhost/events?filters=${encodeURIComponent(
+            JSON.stringify({
+                type: ['container'],
+                event: ['create', 'start'],
+            }),
+        )}`,
     ]);
 
     input.stdout.setEncoding('utf-8');
+
+    input.stdout.on('error', console.error);
 
     input.stdout.pipe(split2()).on('data', data => {
         const event = JSON.parse(data);
