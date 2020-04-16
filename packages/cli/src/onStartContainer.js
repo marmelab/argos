@@ -1,6 +1,8 @@
 const spawn = require('child_process').spawn;
 const split2 = require('split2');
 
+const listenedContainer = [];
+
 const onStartContainer = eventListener => {
     input = spawn('curl', [
         '-v',
@@ -21,6 +23,12 @@ const onStartContainer = eventListener => {
     input.stdout.pipe(split2()).on('data', data => {
         const event = JSON.parse(data);
         const containerName = event.Actor.Attributes.name;
+
+        if (listenedContainer.includes(containerName)) {
+            return;
+        }
+
+        listenedContainer.push(containerName);
         console.log(`Container ${containerName} started`);
         eventListener(containerName);
     });
