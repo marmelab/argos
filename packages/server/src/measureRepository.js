@@ -16,8 +16,37 @@ const getMeasureForContainer = async containerName => {
     const collection = await getMeasureCollection();
 
     return collection
-        .find({ containerName })
-        .sort({ time: 1 })
+        .aggregate([
+            { $match: { containerName } },
+            {
+                $project: {
+                    measureName: 1,
+                    time: { $round: [{ $divide: ['$time', 1000] }] },
+                    networkReceived: '$network.currentReceived',
+                    networkTransmitted: '$network.currentTransmitted',
+                    cpuPercentage: '$cpu.cpuPercentage',
+                    memoryUsage: '$memory.usage',
+                },
+            },
+            {
+                $group: {
+                    _id: '$time',
+                    measures: {
+                        $push: {
+                            k: '$measureName',
+                            v: {
+                                networkReceived: '$networkReceived',
+                                networkTransmitted: '$networkTransmitted',
+                                cpuPercentage: '$cpuPercentage',
+                                memoryUsage: '$memoryUsage',
+                            },
+                        },
+                    },
+                },
+            },
+            { $sort: { _id: 1 } },
+            { $project: { time: '$_id', measures: { $arrayToObject: '$measures' } } },
+        ])
         .toArray();
 };
 

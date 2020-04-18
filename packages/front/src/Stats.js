@@ -26,43 +26,15 @@ export const Stats = ({ container }) => {
         return '...';
     }
 
-    const measures = [...new Set(response.map(({ measureName }) => measureName))];
-
-    const cpuPercentage = regroupStats(
-        response.map(({ time, cpu, measureName }) => ({
-            time: Math.round(time / 1000),
-            [measureName]: cpu.cpuPercentage || 0,
-        })),
-    );
-
-    const memoryUsage = regroupStats(
-        response.map(({ time, memory, measureName }) => ({
-            time: Math.round(time / 1000),
-            [measureName]: memory.usage || 0,
-        })),
-    );
-
-    const networkReceived = regroupStats(
-        response.map(({ time, network, measureName }) => ({
-            time: Math.round(time / 1000),
-            [measureName]: network.currentReceived || 0,
-        })),
-    );
-
-    const networkEmitted = regroupStats(
-        response.map(({ time, network, measureName }) => ({
-            time: Math.round(time / 1000),
-            [measureName]: network.currentEmitted || 0,
-        })),
-    );
+    const measures = Object.keys(response[0].measures);
 
     return (
         <div>
             <h1>{container}</h1>
-            <Chart title="cpu percentage" data={cpuPercentage} lineKeys={measures} />
-            <Chart title="memory usage" data={memoryUsage} lineKeys={measures} />
-            <Chart title="network received" data={networkReceived} lineKeys={measures} />
-            <Chart title="network emitted" data={networkEmitted} lineKeys={measures} />
+            <Chart title="cpu percentage" data={response} lineKeys={measures} valueKey="cpuPercentage" />
+            <Chart title="memory usage" data={response} lineKeys={measures} valueKey="memoryUsage" />
+            <Chart title="network received" data={response} lineKeys={measures} valueKey="networkReceived" />
+            <Chart title="network transmitted" data={response} lineKeys={measures} valueKey="networkTransmitted" />
         </div>
     );
 };
