@@ -1,36 +1,47 @@
 import React from 'react';
-import { LineChart, XAxis, YAxis, Line, Legend } from 'recharts';
+import { ResponsiveContainer, Text, LineChart, XAxis, YAxis, Line, Legend } from 'recharts';
+import { css } from 'emotion';
 
 const colors = ['#006699', '#009933', '#cc9900', '#cc0000', '#cc00cc', '#3333ff'];
 
 const getAverage = values => values.reduce((acc, v) => acc + v, 0) / values.length;
 const getMedian = values => values.sort((a, b) => a - b)[Math.round(values.length / 2)];
 
-export const Chart = ({ title, data, lineKeys, valueKey }) => {
+export const Chart = ({ title, data, lineKeys, valueKey, yTickFormatter }) => {
     const getValue = dataKey => datum => (datum.measures[dataKey] && datum.measures[dataKey][valueKey]) || 0;
     return (
-        <div>
+        <div
+            className={css`
+                width: 50%;
+            `}
+        >
             <h2>{title}</h2>
-            {lineKeys.map(measure => {
-                const values = data.map(getValue(measure));
-                return (
-                    <div>
-                        <h3>{measure}</h3>
-                        <ul>
-                            <li>average:{getAverage(values).toFixed(2)}</li>
-                            <li>median:{getMedian(values).toFixed(2)}</li>
-                        </ul>
-                    </div>
-                );
-            })}
-            <LineChart width={1000} height={300} data={data}>
-                <Legend verticalAlign="top" height={36} formatter={(_, __, index) => lineKeys[index]} />
-                <XAxis dataKey="time" />
-                <YAxis />
-                {lineKeys.map((dataKey, index) => (
-                    <Line dataKey={getValue(dataKey)} stroke={colors[index]}></Line>
-                ))}
-            </LineChart>
+            <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={data}>
+                    <Text>{title}</Text>
+                    <Legend
+                        verticalAlign="bottom"
+                        formatter={(_, __, index) => {
+                            const measure = lineKeys[index];
+                            const values = data.map(getValue(measure));
+                            return (
+                                <>
+                                    {measure}
+                                    <ul>
+                                        <li>average: {yTickFormatter(getAverage(values))}</li>
+                                        <li>median: {yTickFormatter(getMedian(values))}</li>
+                                    </ul>
+                                </>
+                            );
+                        }}
+                    />
+                    <XAxis dataKey="time" />
+                    <YAxis tickFormatter={yTickFormatter} width={80} />
+                    {lineKeys.map((dataKey, index) => (
+                        <Line dataKey={getValue(dataKey)} stroke={colors[index]}></Line>
+                    ))}
+                </LineChart>
+            </ResponsiveContainer>
         </div>
     );
 };
