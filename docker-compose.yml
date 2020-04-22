@@ -1,24 +1,6 @@
 version: '3.5'
 
 services:
-    cli:
-        build: ./packages/cli
-        environment:
-            MONGO_HOST: mongo
-            MONGO_PORT: 27017
-            MONGO_USER: root
-            MONGO_PASSWORD: secret
-            NAME: ${NAME}
-            WAIT_HOSTS: mongo:27017
-        volumes:
-            - ./:/app
-            - /var/run/docker.sock:/var/run/docker.sock
-        working_dir: '/app/packages/cli'
-        command: node src/index.js
-        links:
-            - mongo
-        depends_on:
-            - mongo
     server:
         build: ./packages/cli
         environment:
