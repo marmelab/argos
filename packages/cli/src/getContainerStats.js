@@ -6,7 +6,7 @@ const parseStatsStreamTransform = require('./parseStatsStreamTransform');
 const toJSONStreamTransform = require('./toJSONStreamTransform');
 
 const getContainerStats = async containerName => {
-    input = spawn('curl', [
+    const input = spawn('curl', [
         '-v',
         '--unix-socket',
         '/var/run/docker.sock',

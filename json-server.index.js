@@ -19,6 +19,8 @@ const obj = files.reduce((acc, fileName) => {
     return { ...acc, [key]: JSON.parse(`[${jsonObject}]`) };
 }, {});
 
+obj.containers = JSON.parse(fs.readFileSync(dbPath + 'containers.json'));
+
 const endpoints = Object.keys(obj);
 
 const router = jsonServer.router(obj);
