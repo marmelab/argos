@@ -9,7 +9,7 @@ const run = async () => {
 
     for (var i = 1; i <= runQuantity; i++) {
         console.info(`run ${i}:`);
-        const stopListening = onStartContainer(getContainerStats(`${measureName}-${i}`));
+        const stopListening = onStartContainer(getContainerStats(measureName, i));
         await exec(command).catch(console.warn);
         stopListening();
     }

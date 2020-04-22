@@ -5,7 +5,7 @@ const stream = require('stream');
 const parseStatsStreamTransform = require('./parseStatsStreamTransform');
 const getMongo = require('./getMongo');
 
-const getContainerStats = measureName => containerName => {
+const getContainerStats = (measureName, run) => containerName => {
     const child = spawn('curl', [
         '-v',
         '--unix-socket',
@@ -29,7 +29,7 @@ const getContainerStats = measureName => containerName => {
                 .on('error', reject)
                 .pipe(split2())
                 .on('error', reject)
-                .pipe(parseStatsStreamTransform(containerName, measureName))
+                .pipe(parseStatsStreamTransform(containerName, measureName, run))
                 .on('error', reject)
                 .pipe(strm)
                 .on('error', reject)
