@@ -3,22 +3,16 @@ import React from 'react';
 import { Stats } from './Stats';
 import { useFetch } from './useFetch';
 
-const containerName = 'angry_mayer';
-
 export const App = () => {
-    const { isLoading, response } = useFetch('http://localhost:3002/containers');
+    const { isLoading, response } = useFetch('http://localhost:3003/containers');
 
     if (isLoading || !response) {
         return '...';
     }
 
-    console.log({ response });
-
-    const { containers } = response;
-
     return (
         <div>
-            {containers.map(containerName => (
+            {response.map(containerName => (
                 <Stats container={containerName} />
             ))}
         </div>

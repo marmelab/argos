@@ -36,11 +36,12 @@ const initGetValueIncrement = () => {
     };
 };
 
-const parseStatsTransform = () => {
+const parseStatsTransform = (containerName, measureName) => {
     const getCurrentReceivedNetwork = initGetValueIncrement();
     const getCurrentTransmittedNetwork = initGetValueIncrement();
 
     const getPreviousRawIO = initGetPreviousValue();
+    let startTime;
 
     return new stream.Transform({
         transform(chunk, encoding, next) {
@@ -51,6 +52,10 @@ const parseStatsTransform = () => {
                 if (json.read === '0001-01-01T00:00:00Z') {
                     next();
                     return;
+                }
+
+                if (!startTime) {
+                    startTime = new Date(json.read).getTime();
                 }
 
                 const curAvailableCpu = getCurAvailableCpu(json);
@@ -79,7 +84,7 @@ const parseStatsTransform = () => {
                 const io = rawIO.reduce((acc, { major, minor, op, value }, index) => {
                     const previousValues = previousRawIO ? previousRawIO[index] : null;
 
-                    const key = `${major}.${minor}`;
+                    const key = `${major}-${minor}`;
                     return {
                         ...acc,
                         [key]: {
@@ -91,7 +96,10 @@ const parseStatsTransform = () => {
                 }, {});
 
                 const result = {
+                    measureName,
+                    containerName,
                     date: json.read,
+                    time: new Date(json.read).getTime() - startTime,
                     cpu: {
                         availableCpu,
                         cpuUsage,
