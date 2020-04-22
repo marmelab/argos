@@ -21,7 +21,7 @@ const getMeasureForContainer = async containerName => {
             {
                 $project: {
                     measureName: 1,
-                    time: { $round: [{ $divide: ['$time', 1000] }] },
+                    time: 1,
                     networkReceived: '$network.currentReceived',
                     networkTransmitted: '$network.currentTransmitted',
                     cpuPercentage: '$cpu.cpuPercentage',
