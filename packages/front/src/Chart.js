@@ -8,7 +8,7 @@ const getAverage = values => values.reduce((acc, v) => acc + v, 0) / values.leng
 const getMedian = values => values.sort((a, b) => a - b)[Math.round(values.length / 2)];
 
 export const Chart = ({ title, data, lineKeys, valueKey, yTickFormatter }) => {
-    const getValue = dataKey => datum => (datum.measures[dataKey] && datum.measures[dataKey][valueKey]) || 0;
+    const getValue = dataKey => datum => datum.measures[dataKey] && datum.measures[dataKey][valueKey];
     return (
         <div
             className={css`
@@ -23,7 +23,7 @@ export const Chart = ({ title, data, lineKeys, valueKey, yTickFormatter }) => {
                         verticalAlign="bottom"
                         formatter={(_, __, index) => {
                             const measure = lineKeys[index];
-                            const values = data.map(getValue(measure));
+                            const values = data.map(getValue(measure)).filter(v => v !== null);
                             return (
                                 <>
                                     {measure}
