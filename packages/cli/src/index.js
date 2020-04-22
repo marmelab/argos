@@ -1,21 +1,20 @@
 const getContainerStats = require('./getContainerStats');
 const onStartContainer = require('./onStartContainer');
-const { promisify } = require('util');
-const exec = promisify(require('child_process').exec);
+const exec = require('./exec');
 
 const run = async () => {
     const measureName = process.env.NAME;
     const command = process.env.COMMAND;
+    const runQuantity = process.env.RUN_QUANTITY;
 
-    onStartContainer(getContainerStats(measureName));
-
-    const { stdout, stderr } = await exec(command);
-
-    if (stderr) {
-        console.error(stderr);
+    for (var i = 1; i <= runQuantity; i++) {
+        console.info(`run ${i}:`);
+        const stopListening = onStartContainer(getContainerStats(`${measureName}-${i}`));
+        await exec(command).catch(console.warn);
+        stopListening();
     }
 
     console.log(`child process exited`);
 };
 
-run();
+run().catch(console.error);

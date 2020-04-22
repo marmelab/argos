@@ -1,10 +1,20 @@
 const spawn = require('child_process').spawn;
 const split2 = require('split2');
 
-const listenedContainer = [];
+let listenedContainer = [];
+let unlisteners = [];
+
+const jsonParse = data => {
+    try {
+        // when stopping curl process we can endup with incomplete event
+        return JSON.parse(data);
+    } catch (error) {
+        return null;
+    }
+};
 
 const onStartContainer = eventListener => {
-    input = spawn('curl', [
+    const child = spawn('curl', [
         '-v',
         '--unix-socket',
         '/var/run/docker.sock',
@@ -16,12 +26,15 @@ const onStartContainer = eventListener => {
         )}`,
     ]);
 
-    input.stdout.setEncoding('utf-8');
+    child.stdout.setEncoding('utf-8');
 
-    input.stdout.on('error', console.error);
+    child.stdout.on('error', console.error);
 
-    input.stdout.pipe(split2()).on('data', data => {
-        const event = JSON.parse(data);
+    child.stdout.pipe(split2()).on('data', data => {
+        const event = jsonParse(data);
+        if (!event) {
+            return;
+        }
         const containerName = event.Actor.Attributes.name;
 
         if (listenedContainer.includes(containerName)) {
@@ -30,8 +43,17 @@ const onStartContainer = eventListener => {
 
         listenedContainer.push(containerName);
         console.log(`Container ${containerName} started`);
-        eventListener(containerName);
+        unlisteners.push(eventListener(containerName));
     });
+
+    return () => {
+        unlisteners.map(stop => stop());
+        listenedContainer = [];
+        unlisteners = [];
+        child.stdout.pause();
+        child.stdin.destroy();
+        child.kill();
+    };
 };
 
 module.exports = onStartContainer;
