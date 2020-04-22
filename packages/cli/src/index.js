@@ -1,6 +1,7 @@
 const getContainerStats = require('./getContainerStats');
 const onStartContainer = require('./onStartContainer');
 const exec = require('./exec');
+const computeMeasureAverage = require('./computeMeasureAverage');
 
 const run = async () => {
     const measureName = process.env.NAME;
@@ -14,7 +15,9 @@ const run = async () => {
         stopListening();
     }
 
-    console.log(`child process exited`);
+    await computeMeasureAverage(measureName);
+
+    console.log(`DONE`);
 };
 
 run().catch(console.error);

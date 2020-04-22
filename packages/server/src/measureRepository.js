@@ -17,7 +17,7 @@ const getMeasureForContainer = async containerName => {
 
     return collection
         .aggregate([
-            { $match: { containerName } },
+            { $match: { containerName, run: 'average' } },
             {
                 $project: {
                     measureName: 1,
