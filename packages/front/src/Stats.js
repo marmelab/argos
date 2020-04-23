@@ -5,6 +5,9 @@ import { Chart } from './Chart';
 import { useFetch } from './useFetch';
 
 function displayOctets(value) {
+    if (!value) {
+        return value;
+    }
     value = Math.abs(parseInt(value, 10));
     const defList = [
         [1024 * 1024 * 1024 * 1024 * 1024, 'To'],
@@ -45,7 +48,7 @@ export const Stats = ({ container }) => {
                     data={response}
                     lineKeys={measures}
                     valueKey="cpuPercentage"
-                    yTickFormatter={v => `${v.toFixed(2)}%`}
+                    yTickFormatter={v => v && `${v.toFixed(2)}%`}
                 />
                 <Chart
                     title="memory usage"
