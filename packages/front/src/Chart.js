@@ -1,5 +1,5 @@
 import React from 'react';
-import { ResponsiveContainer, Text, LineChart, XAxis, YAxis, Line, Legend } from 'recharts';
+import { ResponsiveContainer, Text, AreaChart, XAxis, YAxis, Area, Legend } from 'recharts';
 import { css } from 'emotion';
 
 const colors = ['#006699', '#009933', '#cc9900', '#cc0000', '#cc00cc', '#3333ff'];
@@ -17,7 +17,7 @@ export const Chart = ({ title, data, lineKeys, valueKey, yTickFormatter }) => {
         >
             <h2>{title}</h2>
             <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={data}>
+                <AreaChart data={data}>
                     <Text>{title}</Text>
                     <Legend
                         verticalAlign="bottom"
@@ -38,9 +38,9 @@ export const Chart = ({ title, data, lineKeys, valueKey, yTickFormatter }) => {
                     <XAxis dataKey="time" />
                     <YAxis tickFormatter={yTickFormatter} width={80} />
                     {lineKeys.map((dataKey, index) => (
-                        <Line dataKey={getValue(dataKey)} stroke={colors[index]}></Line>
+                        <Area dataKey={getValue(dataKey)} stroke={colors[index]}></Area>
                     ))}
-                </LineChart>
+                </AreaChart>
             </ResponsiveContainer>
         </div>
     );
