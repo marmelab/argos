@@ -5,7 +5,7 @@ const computeMeasureAverage = async measureName => {
 
     const collection = db.collection('measure');
 
-    await collection
+    const averageMeasures = await collection
         .aggregate([
             { $match: { measureName } },
             {
@@ -61,9 +61,10 @@ const computeMeasureAverage = async measureName => {
                     },
                 },
             },
-            { $merge: 'measure' },
         ])
         .toArray();
+
+    await collection.insertMany(averageMeasures);
 };
 
 module.exports = computeMeasureAverage;
