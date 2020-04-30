@@ -5,7 +5,7 @@ Auditing Reporter for Greener Ops Strategies
 ## Requirements
 
 - Docker
-- Docker compose
+- Docker Compose
 
 ## Installation
 
@@ -15,6 +15,6 @@ Auditing Reporter for Greener Ops Strategies
 
 `NAME="[name_of_the_run]" docker-compose up`
 
-See the results displayed on :
+See the results displayed on:
 
 `http://localhost:3003`
