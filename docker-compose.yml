@@ -20,11 +20,6 @@ services:
             - mongo
         depends_on:
             - mongo
-    node:
-        build: ./packages/cli
-        volumes:
-            - ./:/app
-        working_dir: '/app'
     mongo:
         image: mongo
         volumes:

@@ -30,7 +30,7 @@ Go to localhost:3003 to see the report.
 The CLI allows to realize measures. It will execute the given command x times, and then compute the average, min and max of the realized measures.
 The mongo database must be up.
 
-`NAME="[name_of_the_run]" COMMAND="[docker command to measure]" RUN_QUANTITY=[number of run to execute] docker-compose up`
+`NAME="[name_of_the_run]" COMMAND="[docker command to measure]" RUN_QUANTITY=[number of run to execute] make run`
 
 - NAME: the name of the measure
 - COMMAND: the command to measure: this must be a docker command

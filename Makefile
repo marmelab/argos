@@ -15,7 +15,7 @@ export UID = $(USER_ID)
 export GID = $(GROUP_ID)
 
 install: ## fresh install all services in docker for local development
-	docker-compose run --no-deps --rm node bash -ci 'yarn'
+	docker run --rm -t node bash -ci 'yarn'
 
 cs-fix: # fix the code style
 	npm run cs-fix
