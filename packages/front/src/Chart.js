@@ -39,7 +39,7 @@ export const Chart = ({ title, data, lineKeys, avgValueKey, valuesKey, yTickForm
                     <XAxis dataKey="time" />
                     <YAxis tickFormatter={yTickFormatter} width={80} />
                     {lineKeys.map((dataKey, index) => (
-                        <Area dataKey={getValues(dataKey)} stroke={colors[index]}></Area>
+                        <Area dataKey={getValues(dataKey)} stroke={colors[index]} fill={colors[index]}></Area>
                     ))}
                 </AreaChart>
             </ResponsiveContainer>
