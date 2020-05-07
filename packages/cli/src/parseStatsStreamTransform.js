@@ -36,6 +36,14 @@ const initGetValueIncrement = () => {
     };
 };
 
+const jsonParse = json => {
+    try {
+        return JSON.parse(json);
+    } catch (error) {
+        return null;
+    }
+};
+
 const parseStatsTransform = (containerName, measureName, run) => {
     const getCurrentReceivedNetwork = initGetValueIncrement();
     const getCurrentTransmittedNetwork = initGetValueIncrement();
@@ -46,10 +54,10 @@ const parseStatsTransform = (containerName, measureName, run) => {
     return new stream.Transform({
         transform(chunk, encoding, next) {
             try {
-                const json = JSON.parse(chunk.toString());
+                const json = jsonParse(chunk.toString());
 
-                // no data: discarding
-                if (json.read === '0001-01-01T00:00:00Z') {
+                // no data or invalid chunk: discarding
+                if (!json || json.read === '0001-01-01T00:00:00Z') {
                     next();
                     return;
                 }

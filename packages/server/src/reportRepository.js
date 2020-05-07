@@ -1,33 +1,23 @@
 const getMongo = require('./getMongo');
 
-const getMeasureCollection = async () => {
+const getReportCollection = async () => {
     const mongo = await getMongo();
 
-    return mongo.collection('measure');
+    return mongo.collection('report');
 };
 
 const getContainers = async () => {
-    const collection = await getMeasureCollection();
+    const collection = await getReportCollection();
 
     return collection.distinct('containerName');
 };
 
-const getMeasureForContainer = async containerName => {
-    const collection = await getMeasureCollection();
+const getReportForContainer = async containerName => {
+    const collection = await getReportCollection();
 
     return collection
         .aggregate([
-            { $match: { containerName, run: 'average' } },
-            {
-                $project: {
-                    measureName: 1,
-                    time: 1,
-                    networkReceived: '$network.currentReceived',
-                    networkTransmitted: '$network.currentTransmitted',
-                    cpuPercentage: '$cpu.cpuPercentage',
-                    memoryUsage: '$memory.usage',
-                },
-            },
+            { $match: { containerName } },
             {
                 $group: {
                     _id: '$time',
@@ -36,9 +26,13 @@ const getMeasureForContainer = async containerName => {
                             k: '$measureName',
                             v: {
                                 networkReceived: '$networkReceived',
+                                networkReceivedArea: '$networkReceivedArea',
                                 networkTransmitted: '$networkTransmitted',
+                                networkTransmittedArea: '$networkTransmittedArea',
                                 cpuPercentage: '$cpuPercentage',
+                                cpuPercentageArea: '$cpuPercentageArea',
                                 memoryUsage: '$memoryUsage',
+                                memoryUsageArea: '$memoryUsageArea',
                             },
                         },
                     },
@@ -52,5 +46,5 @@ const getMeasureForContainer = async containerName => {
 
 module.exports = {
     getContainers,
-    getMeasureForContainer,
+    getReportForContainer,
 };

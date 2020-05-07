@@ -1,6 +1,6 @@
 const Koa = require('koa');
 const Router = require('koa-router');
-const measureRepository = require('./measureRepository');
+const reportRepository = require('./reportRepository');
 const webpack = require('webpack');
 const koaWebpack = require('koa-webpack');
 const path = require('path');
@@ -12,12 +12,12 @@ const server = new Koa();
 const router = new Router();
 
 router.get('/containers', async ctx => {
-    ctx.body = await measureRepository.getContainers();
+    ctx.body = await reportRepository.getContainers();
     ctx.status = 200;
 });
 
 router.get('/measure/:containerName', async ctx => {
-    ctx.body = await measureRepository.getMeasureForContainer(ctx.params.containerName);
+    ctx.body = await reportRepository.getReportForContainer(ctx.params.containerName);
     ctx.status = 200;
 });
 
