@@ -6,7 +6,7 @@ let unlisteners = [];
 
 const jsonParse = data => {
     try {
-        // when stopping curl process we can endup with incomplete event
+        // when stopping curl process we can end up with incomplete event
         return JSON.parse(data);
     } catch (error) {
         return null;
