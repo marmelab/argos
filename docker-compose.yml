@@ -15,7 +15,7 @@ services:
         ports:
             - 3003:3003
         working_dir: '/app/packages/server'
-        command: node src/index.js
+        command: npm run start
         links:
             - mongo
         depends_on:

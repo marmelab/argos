@@ -27,4 +27,4 @@ connect-mongo:
 	docker exec -it argos_mongo_1 mongo db
 
 start:
-	npm run start
+	docker-compose up
