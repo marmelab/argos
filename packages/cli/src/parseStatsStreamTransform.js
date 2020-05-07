@@ -36,7 +36,7 @@ const initGetValueIncrement = () => {
     };
 };
 
-const parseStatsTransform = (containerName, measureName) => {
+const parseStatsTransform = (containerName, measureName, run) => {
     const getCurrentReceivedNetwork = initGetValueIncrement();
     const getCurrentTransmittedNetwork = initGetValueIncrement();
 
@@ -97,6 +97,7 @@ const parseStatsTransform = (containerName, measureName) => {
 
                 const result = {
                     measureName,
+                    run,
                     containerName,
                     date: json.read,
                     time: new Date(json.read).getTime() - startTime,

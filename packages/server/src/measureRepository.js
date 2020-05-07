@@ -17,11 +17,11 @@ const getMeasureForContainer = async containerName => {
 
     return collection
         .aggregate([
-            { $match: { containerName } },
+            { $match: { containerName, run: 'average' } },
             {
                 $project: {
                     measureName: 1,
-                    time: { $round: [{ $divide: ['$time', 1000] }] },
+                    time: 1,
                     networkReceived: '$network.currentReceived',
                     networkTransmitted: '$network.currentTransmitted',
                     cpuPercentage: '$cpu.cpuPercentage',

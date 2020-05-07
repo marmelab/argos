@@ -15,7 +15,7 @@ export UID = $(USER_ID)
 export GID = $(GROUP_ID)
 
 install: ## fresh install all services in docker for local development
-	docker-compose run --no-deps --rm node bash -ci 'yarn'
+	docker run --rm -t node bash -ci 'yarn'
 
 cs-fix: # fix the code style
 	npm run cs-fix
@@ -23,11 +23,14 @@ cs-fix: # fix the code style
 run: ## run stats cli
 	node packages/cli/src/index.js
 
-api: # run api server
-	npm run start:server
-
 connect-mongo:
 	docker exec -it argos_mongo_1 mongo db
 
 start:
-	npm run start
+	docker-compose up -d
+
+logs:
+	docker-compose logs -f
+
+stop:
+	docker-compose stop
