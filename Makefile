@@ -23,9 +23,6 @@ cs-fix: # fix the code style
 run: ## run stats cli
 	node packages/cli/src/index.js
 
-api: # run api server
-	npm run start:server
-
 connect-mongo:
 	docker exec -it argos_mongo_1 mongo db
 
