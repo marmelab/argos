@@ -7,8 +7,9 @@ const colors = ['#006699', '#009933', '#cc9900', '#cc0000', '#cc00cc', '#3333ff'
 const getAverage = values => values.reduce((acc, v) => acc + v, 0) / values.length;
 const getMedian = values => values.sort((a, b) => a - b)[Math.round(values.length / 2)];
 
-export const Chart = ({ title, data, lineKeys, valueKey, yTickFormatter }) => {
-    const getValue = dataKey => datum => datum.measures[dataKey] && datum.measures[dataKey][valueKey];
+export const Chart = ({ title, data, lineKeys, avgValueKey, valuesKey, yTickFormatter }) => {
+    const getAvgValue = dataKey => datum => datum.measures[dataKey] && datum.measures[dataKey][avgValueKey];
+    const getValues = dataKey => datum => datum.measures[dataKey] && datum.measures[dataKey][valuesKey];
     return (
         <div
             className={css`
@@ -23,7 +24,7 @@ export const Chart = ({ title, data, lineKeys, valueKey, yTickFormatter }) => {
                         verticalAlign="bottom"
                         formatter={(_, __, index) => {
                             const measure = lineKeys[index];
-                            const values = data.map(getValue(measure)).filter(v => v !== null);
+                            const values = data.map(getAvgValue(measure)).filter(v => v !== null && !isNaN(v));
                             return (
                                 <>
                                     {measure}
@@ -38,7 +39,7 @@ export const Chart = ({ title, data, lineKeys, valueKey, yTickFormatter }) => {
                     <XAxis dataKey="time" />
                     <YAxis tickFormatter={yTickFormatter} width={80} />
                     {lineKeys.map((dataKey, index) => (
-                        <Area dataKey={getValue(dataKey)} stroke={colors[index]}></Area>
+                        <Area dataKey={getValues(dataKey)} stroke={colors[index]} fill={colors[index]}></Area>
                     ))}
                 </AreaChart>
             </ResponsiveContainer>

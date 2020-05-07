@@ -47,28 +47,32 @@ export const Stats = ({ container }) => {
                     title="cpu percentage"
                     data={response}
                     lineKeys={measures}
-                    valueKey="cpuPercentage"
+                    avgValueKey="cpuPercentage"
+                    valuesKey="cpuPercentageArea"
                     yTickFormatter={v => v && `${v.toFixed(2)}%`}
                 />
                 <Chart
                     title="memory usage"
                     data={response}
                     lineKeys={measures}
-                    valueKey="memoryUsage"
+                    avgValueKey="memoryUsage"
+                    valuesKey="memoryUsageArea"
                     yTickFormatter={displayOctets}
                 />
                 <Chart
                     title="network received"
                     data={response}
                     lineKeys={measures}
-                    valueKey="networkReceived"
+                    avgValueKey="networkReceived"
+                    valuesKey="networkReceivedArea"
                     yTickFormatter={displayOctets}
                 />
                 <Chart
                     title="network transmitted"
                     data={response}
                     lineKeys={measures}
-                    valueKey="networkTransmitted"
+                    avgValueKey="networkTransmitted"
+                    valuesKey="networkTransmittedArea"
                     yTickFormatter={displayOctets}
                 />
             </div>
