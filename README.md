@@ -2,11 +2,11 @@
 
 Auditing Reporter for Greener Ops Strategies
 
-Tool to measure consumption of a given docker command and see its performance evolution.
-Argos is able to measure cpu, memory and network usage of docker containers for a given command.
-By measuring resource consumption of dockerized e2e tests, argos allows to compare the consumption of an app between its different versions.
+Tool to measure consumption of a given Docker command and see its performance evolution.
+Argos is able to measure CPU, memory and network usage of Docker containers for a given command.
+By measuring resource consumption of dockerized E2E tests, Argos allows to compare the consumption of an app between its different versions.
 
-Argos use the collected metrics to generate chart per docker container and metrics.
+Argos use the collected metrics to generate chart per Docker container and metrics.
 
 ## Requirements
 
@@ -21,20 +21,26 @@ Argos use the collected metrics to generate chart per docker container and metri
 
 ### Start the App
 
-`make start` start the server and the mongo database.
+`make start` start the server and the MongoDB database.
 
 Go to http://localhost:3003 to see the report.
 
 ### Run the CLI
 
 The CLI allows to realize measures. It will execute the given command x times, and then compute the average, min and max of the realized measures.
-The mongo database must be up.
+The MongoDB database must be up.
 
 `NAME="[name_of_the_run]" COMMAND="[docker command to measure]" RUN_QUANTITY=[number of run to execute] MONGO_HOST=localhost MONGO_PORT=27017 MONGO_USER=root MONGO_PASSWORD=secret make run`
 
-- NAME: the name of the measure
-- COMMAND: the command to measure: this must be a docker command
-- RUN_QUANTITY: the number of command execution, argos need to execute the command several times in order to get an average measure.
+- NAME: the name of the measure.
+- COMMAND: the command to measure. It must be a Docker command running the containers, executing the tests and stopping the containers.
+- RUN_QUANTITY: the number of command executions. Argos needs to execute the command several times in order to get an average measure.
+
+### Compare the App Performance Between Versions
+
+Once the CLI has realized a first benchmark of your app, you can compare it with another benchmark of a different version of your application.
+
+To do so, relaunch the CLI with the same environment variables excepted the `NAME` one (choose another name). When the benchmark is finished, you will the comparison of the benchmarks in the report page.
 
 ### Stop the App
 
