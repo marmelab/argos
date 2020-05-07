@@ -3,9 +3,11 @@ const getMongo = require('./getMongo');
 const computeMeasureAverage = async measureName => {
     const db = await getMongo();
 
-    const collection = db.collection('measure');
+    const measureCollection = db.collection('measure');
 
-    const averageMeasures = await collection
+    const reportCollection = db.collection('report');
+
+    const averageMeasures = await measureCollection
         .aggregate([
             { $match: { measureName } },
             {
@@ -24,47 +26,44 @@ const computeMeasureAverage = async measureName => {
                 $group: {
                     _id: { containerName: '$containerName', time: '$time' },
                     measureName: { $first: '$measureName' },
-                    cpuAvailableCpu: { $avg: '$cpu.availableCpu' },
-                    cpuUsage: { $avg: '$cpu.cpuUsage' },
-                    cpuPercentage: { $avg: '$cpu.cpuPercentage' },
-                    memoryUsage: { $avg: '$memory.usage' },
-                    memoryMaxUsage: { $avg: '$memory.maxUsage' },
-                    memoryLimit: { $avg: '$memory.limit' },
-                    networkTotalReceived: { $avg: '$network.totalReceived' },
-                    networkCurrentReceived: { $avg: '$network.currentReceived' },
-                    networkTotalTransmitted: { $avg: '$network.totalTransmitted' },
-                    networkCurrentTransmitted: { $avg: '$network.currentTransmitted' },
+
+                    avgCpuPercentage: { $avg: '$cpu.cpuPercentage' },
+                    minCpuPercentage: { $min: '$cpu.cpuPercentage' },
+                    maxCpuPercentage: { $max: '$cpu.cpuPercentage' },
+
+                    avgMemoryUsage: { $avg: '$memory.usage' },
+                    minMemoryUsage: { $min: '$memory.usage' },
+                    maxMemoryUsage: { $max: '$memory.usage' },
+
+                    avgNetworkCurrentReceived: { $avg: '$network.currentReceived' },
+                    minNetworkCurrentReceived: { $min: '$network.currentReceived' },
+                    maxNetworkCurrentReceived: { $max: '$network.currentReceived' },
+
+                    avgNetworkCurrentTransmitted: { $avg: '$network.currentTransmitted' },
+                    minNetworkCurrentTransmitted: { $min: '$network.currentTransmitted' },
+                    maxNetworkCurrentTransmitted: { $max: '$network.currentTransmitted' },
                 },
             },
             {
                 $project: {
                     _id: 0,
                     measureName: 1,
-                    run: 'average',
                     containerName: '$_id.containerName',
                     time: '$_id.time',
-                    cpu: {
-                        availableCpu: '$cpuAvailableCpu',
-                        cpuUsage: '$cpuUsage',
-                        cpuPercentage: '$cpuPercentage',
-                    },
-                    memory: {
-                        usage: '$memoryUsage',
-                        maxUsage: '$memoryMaxUsage',
-                        limit: '$memoryLimit',
-                    },
-                    network: {
-                        totalReceived: '$networkTotalReceived',
-                        currentReceived: '$networkCurrentReceived',
-                        totalTransmitted: '$networkTotalTransmitted',
-                        currentTransmitted: '$networkCurrentTransmitted',
-                    },
+                    cpuPercentage: '$avgCpuPercentage',
+                    cpuPercentageArea: ['$minCpuPercentage', '$maxCpuPercentage'],
+                    memoryUsage: '$avgMemoryUsage',
+                    memoryUsageArea: ['$minMemoryUsage', '$maxMemoryUsage'],
+                    networkReceived: '$avgNetworkCurrentReceived',
+                    networkReceivedArea: ['$minNetworkCurrentReceived', '$maxNetworkCurrentReceived'],
+                    networkTransmitted: '$avgNetworkCurrentTransmitted',
+                    networkTransmittedArea: ['$minNetworkCurrentTransmitted', '$maxNetworkCurrentTransmitted'],
                 },
             },
         ])
         .toArray();
 
-    await collection.insertMany(averageMeasures);
+    await reportCollection.insertMany(averageMeasures);
 };
 
 module.exports = computeMeasureAverage;
