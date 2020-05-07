@@ -24,7 +24,7 @@ export const Chart = ({ title, data, lineKeys, avgValueKey, valuesKey, yTickForm
                         verticalAlign="bottom"
                         formatter={(_, __, index) => {
                             const measure = lineKeys[index];
-                            const values = data.map(getAvgValue(measure)).filter(v => v !== null);
+                            const values = data.map(getAvgValue(measure)).filter(v => v !== null && !isNaN(v));
                             return (
                                 <>
                                     {measure}
