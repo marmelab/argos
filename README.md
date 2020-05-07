@@ -23,14 +23,14 @@ Argos use the collected metrics to generate chart per docker container and metri
 
 `make start` start the server and the mongo database.
 
-Go to localhost:3003 to see the report.
+Go to http://localhost:3003 to see the report.
 
 ### Run the CLI
 
 The CLI allows to realize measures. It will execute the given command x times, and then compute the average, min and max of the realized measures.
 The mongo database must be up.
 
-`NAME="[name_of_the_run]" COMMAND="[docker command to measure]" RUN_QUANTITY=[number of run to execute] make run`
+`NAME="[name_of_the_run]" COMMAND="[docker command to measure]" RUN_QUANTITY=[number of run to execute] MONGO_HOST=localhost MONGO_PORT=27017 MONGO_USER=root MONGO_PASSWORD=secret make run`
 
 - NAME: the name of the measure
 - COMMAND: the command to measure: this must be a docker command
