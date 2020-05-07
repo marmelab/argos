@@ -35,3 +35,11 @@ The mongo database must be up.
 - NAME: the name of the measure
 - COMMAND: the command to measure: this must be a docker command
 - RUN_QUANTITY: the number of command execution, argos need to execute the command several times in order to get an average measure.
+
+### Stop the App
+
+Use `make stop` to stop the server and the database.
+
+### See the Logs
+
+If the app is not workings as expected, you can see the logs by using `make logs`.
