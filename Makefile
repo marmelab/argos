@@ -24,7 +24,7 @@ run: ## run stats cli
 	node packages/cli/src/index.js
 
 connect-mongo:
-	docker exec -it argos_mongo_1 mongo db
+	docker exec -it argos_mongo_1 mongo mongodb://root:@localhost:27017
 
 start:
 	docker-compose up -d
