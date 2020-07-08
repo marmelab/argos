@@ -1,11 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { css } from 'emotion';
 import { Card, CardContent, Typography } from '@material-ui/core';
 
 import { Chart } from './Chart';
 import { useFetch } from './useFetch';
-import { runs } from './summaryTools';
-import SummaryChart from './SummaryChart';
 
 function displayOctets(value) {
     if (!value) {
@@ -28,28 +26,18 @@ function displayOctets(value) {
     return `${(value / def[0]).toFixed(2)} ${def[1]}`;
 }
 
-export const Stats = ({ container }) => {
+export const Stats = ({ container, setData }) => {
     const { isLoading, response } = useFetch(`http://localhost:3003/measure/${container}`);
+
+    useEffect(() => {
+        response && setData(container, response);
+    }, [setData, container, response]);
 
     if (isLoading || !response) {
         return '...';
     }
 
     const measures = Object.keys(response[0].measures);
-    const runData = runs(response, measures[0])[0];
-
-    const StatContainer = ({ children }) => (
-        <div
-            className={css`
-                display: flex;
-                flex-direction: column;
-                flex-wrap: wrap;
-                witdh: 100%;
-            `}
-        >
-            {children}
-        </div>
-    );
 
     const Title = ({ children }) => (
         <Typography
@@ -76,17 +64,6 @@ export const Stats = ({ container }) => {
         </div>
     );
 
-    const CenterPanel = ({ children }) => (
-        <div
-            className={css`
-                display: flex;
-                width: 75%;
-            `}
-        >
-            {children}
-        </div>
-    );
-
     const ChartContainer = ({ children }) => (
         <Card
             className={css`
@@ -101,62 +78,48 @@ export const Stats = ({ container }) => {
     return (
         <StatContainer>
             <Title>{container}</Title>
-            <div
-                className={css`
-                    display: flex;
-                    flex-direction: row;
-                    flex-wrap: wrap;
-                    width: 100%;
-                `}
-            >
-                <LeftPanel>
-                    <ChartContainer>
-                        <Chart
-                            title="cpu percentage"
-                            data={response}
-                            lineKeys={measures}
-                            avgValueKey="cpuPercentage"
-                            valuesKey="cpuPercentageArea"
-                            yTickFormatter={v => v && `${v.toFixed(2)}%`}
-                        />
-                    </ChartContainer>
-                    <ChartContainer>
-                        <Chart
-                            title="memory usage"
-                            data={response}
-                            lineKeys={measures}
-                            avgValueKey="memoryUsage"
-                            valuesKey="memoryUsageArea"
-                            yTickFormatter={displayOctets}
-                        />
-                    </ChartContainer>
-                    <ChartContainer>
-                        <Chart
-                            title="network received"
-                            data={response}
-                            lineKeys={measures}
-                            avgValueKey="networkReceived"
-                            valuesKey="networkReceivedArea"
-                            yTickFormatter={displayOctets}
-                        />
-                    </ChartContainer>
-                    <ChartContainer>
-                        <Chart
-                            title="network transmitted"
-                            data={response}
-                            lineKeys={measures}
-                            avgValueKey="networkTransmitted"
-                            valuesKey="networkTransmittedArea"
-                            yTickFormatter={displayOctets}
-                        />
-                    </ChartContainer>
-                </LeftPanel>
-                <CenterPanel>
-                    <ChartContainer>
-                        <SummaryChart selectedRun={runData} />
-                    </ChartContainer>
-                </CenterPanel>
-            </div>
+            <LeftPanel>
+                <ChartContainer>
+                    <Chart
+                        title="cpu percentage"
+                        data={response}
+                        lineKeys={measures}
+                        avgValueKey="cpuPercentage"
+                        valuesKey="cpuPercentageArea"
+                        yTickFormatter={v => v && `${v.toFixed(2)}%`}
+                    />
+                </ChartContainer>
+                <ChartContainer>
+                    <Chart
+                        title="memory usage"
+                        data={response}
+                        lineKeys={measures}
+                        avgValueKey="memoryUsage"
+                        valuesKey="memoryUsageArea"
+                        yTickFormatter={displayOctets}
+                    />
+                </ChartContainer>
+                <ChartContainer>
+                    <Chart
+                        title="network received"
+                        data={response}
+                        lineKeys={measures}
+                        avgValueKey="networkReceived"
+                        valuesKey="networkReceivedArea"
+                        yTickFormatter={displayOctets}
+                    />
+                </ChartContainer>
+                <ChartContainer>
+                    <Chart
+                        title="network transmitted"
+                        data={response}
+                        lineKeys={measures}
+                        avgValueKey="networkTransmitted"
+                        valuesKey="networkTransmittedArea"
+                        yTickFormatter={displayOctets}
+                    />
+                </ChartContainer>
+            </LeftPanel>
         </StatContainer>
     );
 };

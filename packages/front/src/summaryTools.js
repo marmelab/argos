@@ -85,7 +85,7 @@ export const createSummaryFromMetricsList = (...metricsLists) => {
     });
 };
 
-export const runs = (rawData, key) => {
+export const runs = allRawData => {
     return [
         {
             id: 6892,
@@ -155,29 +155,32 @@ export const runs = (rawData, key) => {
                     ],
                 },
             ],
-            raw: [
-                {
-                    label: 'Server',
+            raw: Object.keys(allRawData).map(key => {
+                const currentData = allRawData[key];
+                const measures = Object.keys(currentData[0].measures);
+                const measure = measures[0];
+                return {
+                    label: key,
                     metrics: [
                         {
                             type: 'cpu',
-                            values: getValues(rawData, ({ cpuPercentage }) => cpuPercentage, key),
+                            values: getValues(currentData, ({ cpuPercentage }) => cpuPercentage, measure),
                         },
                         {
                             type: 'mem',
-                            values: getValues(rawData, ({ memoryUsage }) => memoryUsage, key),
+                            values: getValues(currentData, ({ memoryUsage }) => memoryUsage, measure),
                         },
                         {
                             type: 'network',
                             values: getValues(
-                                rawData,
+                                currentData,
                                 ({ networkReceived, networkTransmitted }) => networkReceived + networkTransmitted,
-                                key,
+                                measure,
                             ),
                         },
                     ],
-                },
-            ],
+                };
+            }),
         },
     ];
 };
