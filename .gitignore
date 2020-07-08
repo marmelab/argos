@@ -1,3 +1,6 @@
 var
 node_modules
 data
+dump/db
+dump/admin
+dumpMongo

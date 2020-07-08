@@ -26,5 +26,6 @@ services:
             MONGO_INITDB_ROOT_PASSWORD: secret
         volumes:
             - ./data:/data/db
+            - ./dump:/dump
         ports:
             - 27017:27017
