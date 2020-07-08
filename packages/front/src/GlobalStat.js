@@ -12,7 +12,7 @@ export const GlobalStat = ({ data }) => {
         <Card
             className={css`
                 margin: 1em;
-                width: calc(100% - 2em);
+                width: calc(75% - 2em);
             `}
         >
             <CardContent>{children}</CardContent>

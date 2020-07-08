@@ -39,6 +39,19 @@ export const Stats = ({ container, setData }) => {
 
     const measures = Object.keys(response[0].measures);
 
+    const StatContainer = ({ children }) => (
+        <div
+            className={css`
+                display: flex;
+                flex-direction: column;
+                flex-wrap: wrap;
+                width: 100%;
+            `}
+        >
+            {children}
+        </div>
+    );
+
     const Title = ({ children }) => (
         <Typography
             variant="h5"
@@ -57,7 +70,7 @@ export const Stats = ({ container, setData }) => {
                 display: flex;
                 flex-direction: column;
                 flex-wrap: wrap;
-                width: 25%;
+                width: 100%;
             `}
         >
             {children}
