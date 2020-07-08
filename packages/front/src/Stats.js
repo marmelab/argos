@@ -1,8 +1,11 @@
 import React from 'react';
 import { css } from 'emotion';
+import { Card, CardContent, Typography } from '@material-ui/core';
 
 import { Chart } from './Chart';
 import { useFetch } from './useFetch';
+import { runs } from './summaryTools';
+import SummaryChart from './SummaryChart';
 
 function displayOctets(value) {
     if (!value) {
@@ -33,49 +36,127 @@ export const Stats = ({ container }) => {
     }
 
     const measures = Object.keys(response[0].measures);
+    const runData = runs(response, measures[0])[0];
+
+    const StatContainer = ({ children }) => (
+        <div
+            className={css`
+                display: flex;
+                flex-direction: column;
+                flex-wrap: wrap;
+                witdh: 100%;
+            `}
+        >
+            {children}
+        </div>
+    );
+
+    const Title = ({ children }) => (
+        <Typography
+            variant="h5"
+            className={css`
+                padding: 1em;
+                text-transform: uppercase;
+            `}
+        >
+            {children}
+        </Typography>
+    );
+
+    const LeftPanel = ({ children }) => (
+        <div
+            className={css`
+                display: flex;
+                flex-direction: column;
+                flex-wrap: wrap;
+                width: 25%;
+            `}
+        >
+            {children}
+        </div>
+    );
+
+    const CenterPanel = ({ children }) => (
+        <div
+            className={css`
+                display: flex;
+                width: 75%;
+            `}
+        >
+            {children}
+        </div>
+    );
+
+    const ChartContainer = ({ children }) => (
+        <Card
+            className={css`
+                margin: 1em;
+                width: calc(100% - 2em);
+            `}
+        >
+            <CardContent>{children}</CardContent>
+        </Card>
+    );
 
     return (
-        <div>
-            <h1>{container}</h1>
+        <StatContainer>
+            <Title>{container}</Title>
             <div
                 className={css`
                     display: flex;
+                    flex-direction: row;
                     flex-wrap: wrap;
+                    width: 100%;
                 `}
             >
-                <Chart
-                    title="cpu percentage"
-                    data={response}
-                    lineKeys={measures}
-                    avgValueKey="cpuPercentage"
-                    valuesKey="cpuPercentageArea"
-                    yTickFormatter={v => v && `${v.toFixed(2)}%`}
-                />
-                <Chart
-                    title="memory usage"
-                    data={response}
-                    lineKeys={measures}
-                    avgValueKey="memoryUsage"
-                    valuesKey="memoryUsageArea"
-                    yTickFormatter={displayOctets}
-                />
-                <Chart
-                    title="network received"
-                    data={response}
-                    lineKeys={measures}
-                    avgValueKey="networkReceived"
-                    valuesKey="networkReceivedArea"
-                    yTickFormatter={displayOctets}
-                />
-                <Chart
-                    title="network transmitted"
-                    data={response}
-                    lineKeys={measures}
-                    avgValueKey="networkTransmitted"
-                    valuesKey="networkTransmittedArea"
-                    yTickFormatter={displayOctets}
-                />
+                <LeftPanel>
+                    <ChartContainer>
+                        <Chart
+                            title="cpu percentage"
+                            data={response}
+                            lineKeys={measures}
+                            avgValueKey="cpuPercentage"
+                            valuesKey="cpuPercentageArea"
+                            yTickFormatter={v => v && `${v.toFixed(2)}%`}
+                        />
+                    </ChartContainer>
+                    <ChartContainer>
+                        <Chart
+                            title="memory usage"
+                            data={response}
+                            lineKeys={measures}
+                            avgValueKey="memoryUsage"
+                            valuesKey="memoryUsageArea"
+                            yTickFormatter={displayOctets}
+                        />
+                    </ChartContainer>
+                    <ChartContainer>
+                        <Chart
+                            title="network received"
+                            data={response}
+                            lineKeys={measures}
+                            avgValueKey="networkReceived"
+                            valuesKey="networkReceivedArea"
+                            yTickFormatter={displayOctets}
+                        />
+                    </ChartContainer>
+                    <ChartContainer>
+                        <Chart
+                            title="network transmitted"
+                            data={response}
+                            lineKeys={measures}
+                            avgValueKey="networkTransmitted"
+                            valuesKey="networkTransmittedArea"
+                            yTickFormatter={displayOctets}
+                        />
+                    </ChartContainer>
+                </LeftPanel>
+                <CenterPanel>
+                    <ChartContainer>
+                        <SummaryChart selectedRun={runData} />
+                    </ChartContainer>
+                </CenterPanel>
             </div>
-        </div>
+        </StatContainer>
     );
 };

@@ -1,4 +1,5 @@
 import React from 'react';
+import { css } from 'emotion';
 
 import { Stats } from './Stats';
 import { useFetch } from './useFetch';
@@ -11,7 +12,13 @@ export const App = () => {
     }
 
     return (
-        <div>
+        <div
+            className={css`
+                background-color: floralwhite;
+                font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+                width: 100%;
+            `}
+        >
             {response.map(containerName => (
                 <Stats container={containerName} />
             ))}
