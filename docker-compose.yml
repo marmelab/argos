@@ -13,8 +13,8 @@ services:
             - ./:/app
         ports:
             - 3003:3003
-        working_dir: '/app/packages/server'
-        command: npm run start
+        working_dir: '/app'
+        command: yarn start
         links:
             - mongo
         depends_on:
