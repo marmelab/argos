@@ -6,6 +6,7 @@ const parseStatsStreamTransform = require('./parseStatsStreamTransform');
 const getMongo = require('./getMongo');
 
 const getContainerStats = (measureName, run) => containerName => {
+    console.log(`Gather measure for ${containerName}`);
     const child = spawn('curl', [
         '-v',
         '--unix-socket',
