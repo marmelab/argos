@@ -1,12 +1,58 @@
-export const getValues = (raw, valueGetter, areaGetter, key) =>
-    raw
+export const getValues = (raw, valueName, areaName, key) => {
+    const result = raw
         .filter(({ measures }) => !!measures[key])
-        .map(metric => ({
-            time: metric.time,
-            value: valueGetter(metric.measures[key]),
-            area: areaGetter(metric.measures[key]),
-        }))
+        .map(metric => {
+            const otherKeys = Object.keys(metric.measures).filter(k => k !== key);
+            const areaMin = otherKeys.reduce((min, cur) => {
+                if (metric.measures[cur][areaName][0] < min) {
+                    return metric.measures[cur][areaName][0];
+                }
+                return min;
+            }, 1000000000);
+            const areaMax = otherKeys.reduce((max, cur) => {
+                if (metric.measures[cur][areaName][1] > max) {
+                    return metric.measures[cur][areaName][1];
+                }
+                return max;
+            }, 0);
+
+            return {
+                time: metric.time,
+                value: metric.measures[key][valueName],
+                area: otherKeys.length > 0 ? [areaMin, areaMax] : [null, null],
+            };
+        })
         .filter(({ value }) => !!value);
+    return result;
+};
+
+export const getBothValues = (raw, value1Name, value2Name, area1Name, area2Name, key) => {
+    const result = raw
+        .filter(({ measures }) => !!measures[key])
+        .map(metric => {
+            const otherKeys = Object.keys(metric.measures).filter(k => k !== key);
+            const areaMin = otherKeys.reduce((min, cur) => {
+                if (metric.measures[cur][area1Name][0] + metric.measures[cur][area2Name][0] < min) {
+                    return metric.measures[cur][area1Name][0] + metric.measures[cur][area2Name][0];
+                }
+                return min;
+            }, 1000000000);
+            const areaMax = otherKeys.reduce((max, cur) => {
+                if (metric.measures[cur][area1Name][1] + metric.measures[cur][area2Name][1] > max) {
+                    return metric.measures[cur][area1Name][1] + metric.measures[cur][area2Name][1];
+                }
+                return max;
+            }, 0);
+
+            return {
+                time: metric.time,
+                value: metric.measures[key][value1Name] + metric.measures[key][value2Name],
+                area: otherKeys.length > 0 ? [areaMin, areaMax] : [null, null],
+            };
+        })
+        .filter(({ value }) => !!value);
+    return result;
+};
 
 export const createSummary = (selectedRun, hiddenMetricsList = []) => {
     const metricsLists = selectedRun.raw.reduce((metricsList, category) => {
@@ -188,46 +234,37 @@ export const runs = (allRawData, measureName) => {
                     ],
                 },
             ],
-            raw: Object.keys(allRawData).map(key => {
-                const currentData = allRawData[key];
-                const measures = Object.keys(currentData[0].measures);
-                const measure = measures[0];
-                return {
-                    label: key,
-                    metrics: [
-                        {
-                            type: 'cpu',
-                            values: getValues(
-                                currentData,
-                                ({ cpuPercentage }) => cpuPercentage,
-                                ({ cpuPercentageArea }) => cpuPercentageArea,
-                                measure,
-                            ),
-                        },
-                        {
-                            type: 'mem',
-                            values: getValues(
-                                currentData,
-                                ({ memoryUsage }) => memoryUsage,
-                                ({ memoryUsageArea }) => memoryUsageArea,
-                                measure,
-                            ),
-                        },
-                        {
-                            type: 'network',
-                            values: getValues(
-                                currentData,
-                                ({ networkReceived, networkTransmitted }) => networkReceived + networkTransmitted,
-                                ({ networkReceivedArea, networkTransmittedArea }) => [
-                                    networkReceivedArea[0] + networkTransmittedArea[0],
-                                    networkReceivedArea[1] + networkTransmittedArea[1],
-                                ],
-                                measure,
-                            ),
-                        },
-                    ],
-                };
-            }),
+            raw: Object.keys(allRawData)
+                .filter(key => {
+                    return allRawData[key].filter(e => !!e.measures[measureName]).length > 0;
+                })
+                .map(key => {
+                    const currentData = allRawData[key];
+                    return {
+                        label: key,
+                        metrics: [
+                            {
+                                type: 'cpu',
+                                values: getValues(currentData, 'cpuPercentage', 'cpuPercentageArea', measureName),
+                            },
+                            {
+                                type: 'mem',
+                                values: getValues(currentData, 'memoryUsage', 'memoryUsageArea', measureName),
+                            },
+                            {
+                                type: 'network',
+                                values: getBothValues(
+                                    currentData,
+                                    'networkReceived',
+                                    'networkTransmitted',
+                                    'networkReceivedArea',
+                                    'networkTransmittedArea',
+                                    measureName,
+                                ),
+                            },
+                        ],
+                    };
+                }),
         },
     ];
 };

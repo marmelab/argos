@@ -6,9 +6,8 @@ import { runs } from './summaryTools';
 import SummaryChart from './SummaryChart';
 
 export const GlobalStat = ({ data }) => {
-    //const measures = Object.keys(currentData[0].measures);
-    const runData = runs(data)[0];
-
+    const measureToTest = 'arte_liquid';
+    const runData = runs(data, measureToTest)[0];
     const ChartContainer = ({ children }) => (
         <Card
             className={css`
