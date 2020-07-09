@@ -26,7 +26,7 @@ function displayOctets(value) {
     return `${(value / def[0]).toFixed(2)} ${def[1]}`;
 }
 
-export const Stats = ({ container, setData }) => {
+export const Stats = ({ container, setData, measureToTest }) => {
     const { isLoading, response } = useFetch(`http://localhost:3003/measure/${container}`);
 
     useEffect(() => {
@@ -38,6 +38,14 @@ export const Stats = ({ container, setData }) => {
     }
 
     const measures = Object.keys(response[0].measures);
+
+    if (!measures.includes(measureToTest)) {
+        return null;
+    }
+
+    if (response[0].time === null) {
+        return null;
+    }
 
     const StatContainer = ({ children }) => (
         <div
