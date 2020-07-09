@@ -5,9 +5,23 @@ import { Stats } from './Stats';
 import { GlobalStat } from './GlobalStat';
 import { useFetch } from './useFetch';
 
+const getQueryVariable = variable => {
+    var query = window.location.search.substring(1);
+    var vars = query.split('&');
+    for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split('=');
+        if (pair[0] == variable) {
+            return pair[1];
+        }
+    }
+    return null;
+};
+
 export const App = () => {
     const { isLoading, response } = useFetch('http://localhost:3003/containers');
     const [globalData, setGlobalData] = useState({});
+
+    const measureToTest = getQueryVariable('look') || 'arte_liquid';
 
     const handleSetGlobalData = useCallback(
         (containerName, data) => {
@@ -39,10 +53,12 @@ export const App = () => {
                 `}
             >
                 {response.map(containerName => {
-                    return <Stats container={containerName} setData={handleSetGlobalData} />;
+                    return (
+                        <Stats container={containerName} setData={handleSetGlobalData} measureToTest={measureToTest} />
+                    );
                 })}
             </div>
-            <GlobalStat data={globalData} />
+            <GlobalStat data={globalData} measureToTest={measureToTest} />
         </div>
     );
 };
