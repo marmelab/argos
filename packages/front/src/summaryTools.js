@@ -1,9 +1,10 @@
-export const getValues = (raw, getter, key) =>
+export const getValues = (raw, valueGetter, areaGetter, key) =>
     raw
         .filter(({ measures }) => !!measures[key])
         .map(metric => ({
             time: metric.time,
-            value: getter(metric.measures[key]),
+            value: valueGetter(metric.measures[key]),
+            area: areaGetter(metric.measures[key]),
         }))
         .filter(({ value }) => !!value);
 
@@ -38,7 +39,43 @@ export const createSummaryFromMetricsList = (...metricsLists) => {
         });
     });
 
+    let metricsMinByTime = {};
+    metricsLists.forEach((metricList, index) => {
+        metricList.forEach(metric => {
+            if (!metricsMinByTime[metric.time]) {
+                metricsMinByTime[metric.time] = [];
+            }
+            metricsMinByTime[metric.time][index] = metric.area[0];
+        });
+    });
+
+    let metricsMaxByTime = {};
+    metricsLists.forEach((metricList, index) => {
+        metricList.forEach(metric => {
+            if (!metricsMaxByTime[metric.time]) {
+                metricsMaxByTime[metric.time] = [];
+            }
+            metricsMaxByTime[metric.time][index] = metric.area[1];
+        });
+    });
+
     const averages = Object.values(metricsByTime).map(
+        (metrics, index) =>
+            metrics.reduce((prev, curr, index) => {
+                const scaledCurrent = (curr / maxMetrics[index]) * 100;
+                return prev + scaledCurrent;
+            }, 0) / metrics.length,
+    );
+
+    const minAverages = Object.values(metricsMinByTime).map(
+        (metrics, index) =>
+            metrics.reduce((prev, curr, index) => {
+                const scaledCurrent = (curr / maxMetrics[index]) * 100;
+                return prev + scaledCurrent;
+            }, 0) / metrics.length,
+    );
+
+    const maxAverages = Object.values(metricsMaxByTime).map(
         (metrics, index) =>
             metrics.reduce((prev, curr, index) => {
                 const scaledCurrent = (curr / maxMetrics[index]) * 100;
@@ -75,17 +112,13 @@ export const createSummaryFromMetricsList = (...metricsLists) => {
             previousAverages,
             trailingAverage,
             ten: 10,
-            trail: [
-                // ...(2/2) and by doing some 20% magic
-                Math.round(trailingAverage) * 0.8,
-                Math.round(trailingAverage) * 1.2,
-            ],
-            budget: [Math.round(trailingAverage) * 1.2, Math.round(trailingAverage) * 1.2 * 1.02],
+            trail: [minAverages[index], maxAverages[index]],
+            budget: [maxAverages[index], maxAverages[index] * 1.02],
         };
     });
 };
 
-export const runs = allRawData => {
+export const runs = (allRawData, measureName) => {
     return [
         {
             id: 6892,
@@ -164,17 +197,31 @@ export const runs = allRawData => {
                     metrics: [
                         {
                             type: 'cpu',
-                            values: getValues(currentData, ({ cpuPercentage }) => cpuPercentage, measure),
+                            values: getValues(
+                                currentData,
+                                ({ cpuPercentage }) => cpuPercentage,
+                                ({ cpuPercentageArea }) => cpuPercentageArea,
+                                measure,
+                            ),
                         },
                         {
                             type: 'mem',
-                            values: getValues(currentData, ({ memoryUsage }) => memoryUsage, measure),
+                            values: getValues(
+                                currentData,
+                                ({ memoryUsage }) => memoryUsage,
+                                ({ memoryUsageArea }) => memoryUsageArea,
+                                measure,
+                            ),
                         },
                         {
                             type: 'network',
                             values: getValues(
                                 currentData,
                                 ({ networkReceived, networkTransmitted }) => networkReceived + networkTransmitted,
+                                ({ networkReceivedArea, networkTransmittedArea }) => [
+                                    networkReceivedArea[0] + networkTransmittedArea[0],
+                                    networkReceivedArea[1] + networkTransmittedArea[1],
+                                ],
                                 measure,
                             ),
                         },

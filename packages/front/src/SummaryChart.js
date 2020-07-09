@@ -8,6 +8,7 @@ import { createSummary } from './summaryTools';
 
 const SummaryChart = ({ selectedRun, hiddenMetrics = [] }) => {
     const summary = createSummary(selectedRun, hiddenMetrics);
+
     return (
         <div>
             <Typography variant="h6">Summary</Typography>
@@ -21,7 +22,6 @@ const SummaryChart = ({ selectedRun, hiddenMetrics = [] }) => {
                     average: { min: 0, max: 100 },
                 }}
             >
-                <Area position="time*budget" color={theme.colors.budget.chart} shape="smooth" />
                 <Area position="time*trail" color={theme.colors.trail.chart} shape="smooth" />
                 <Line position="time*average" shape="smooth" />
             </Chart>
