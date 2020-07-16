@@ -7,16 +7,68 @@ const computeMeasureAverage = async measureName => {
 
     const reportCollection = db.collection('report');
 
+    const temp = await measureCollection
+        .aggregate([
+            { $match: { measureName } },
+            {
+                $lookup: {
+                    from: 'measure',
+                    localField: 'time',
+                    foreignField: 'time',
+                    /*let: { containerName2: '$containerName', measureName2: '$measureName', run2: '$run' },
+                    pipeline: [
+                        { $match: { containerName: '$$containerName2', measureName: '$$measureName2', run: '$$run2' } },
+                        { $project: { _id: 0, initialTime: '$time' } },
+                    ],*/
+                    as: 'initialTime',
+                },
+            },
+        ])
+        .toArray();
+
+    console.log('temp', temp);
+
+    /* const temp2 = await measureCollection
+        .aggregate([
+            { $match: { measureName } },
+            {
+                $lookup: {
+                    from: 'measure',
+                    localField: 'run',
+                    foreignField: 'run',
+                    let: { containerName2: '$containerName', measureName2: '$measureName', run2: '$run' },
+                    pipeline: [
+                        { $match: { containerName: '$$containerName2', measureName: '$$measureName2', run: '$$run2' } },
+                        { $project: { _id: 0, initialTime: '$time' } },
+                    ],
+                    as: 'initialTime',
+                },
+            },
+        ])
+        .toArray();
+
+    console.log('temp', temp2); */
+
     const averageMeasures = await measureCollection
         .aggregate([
             { $match: { measureName } },
+            {
+                $lookup: {
+                    from: 'measure',
+                    pipeline: [
+                        { $match: { containerName: '$containerName', measureName: '$measureName', run: '$run' } },
+                        { $project: { _id: 0, initialTime: '$time' } },
+                    ],
+                    as: 'initialTime',
+                },
+            },
             {
                 $project: {
                     measureName: 1,
                     run: 1,
                     containerName: 1,
-                    date: 1,
-                    time: { $round: [{ $divide: ['$time', 1000] }] },
+                    time: { $subtract: ['$time', 2] },
+                    initialTime: '$initialTime',
                     cpu: 1,
                     memory: 1,
                     network: 1,
@@ -24,7 +76,7 @@ const computeMeasureAverage = async measureName => {
             },
             {
                 $group: {
-                    _id: { containerName: '$containerName', time: '$time' },
+                    _id: { containerName: '$containerName', time: '$time', initialTime: '$initialTime' },
                     measureName: { $first: '$measureName' },
 
                     avgCpuPercentage: { $avg: '$cpu.cpuPercentage' },
@@ -50,6 +102,7 @@ const computeMeasureAverage = async measureName => {
                     measureName: 1,
                     containerName: '$_id.containerName',
                     time: '$_id.time',
+                    initialTime: '$_id.initialTime',
                     cpuPercentage: '$avgCpuPercentage',
                     cpuPercentageArea: ['$minCpuPercentage', '$maxCpuPercentage'],
                     memoryUsage: '$avgMemoryUsage',
@@ -62,6 +115,8 @@ const computeMeasureAverage = async measureName => {
             },
         ])
         .toArray();
+
+    //console.log('averageMeasures', averageMeasures);
 
     await reportCollection.insertMany(averageMeasures);
 };

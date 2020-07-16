@@ -62,10 +62,6 @@ const parseStatsTransform = (containerName, measureName, run) => {
                     return;
                 }
 
-                if (!startTime) {
-                    startTime = new Date(json.read).getTime();
-                }
-
                 const curAvailableCpu = getCurAvailableCpu(json);
 
                 const preAvailableCpu = getPreAvailableCpu(json);
@@ -108,7 +104,7 @@ const parseStatsTransform = (containerName, measureName, run) => {
                     run,
                     containerName,
                     date: json.read,
-                    time: new Date(json.read).getTime() - startTime,
+                    time: Math.round(new Date(json.read).getTime() / 1000),
                     cpu: {
                         availableCpu,
                         cpuUsage,
