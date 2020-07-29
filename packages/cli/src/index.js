@@ -16,7 +16,7 @@ const run = async () => {
         console.log(`${lastRun} previous runs detected for measure ${measureName}, adding run to the existing ones.`);
     }
 
-    for (var i = lastRun + 1; i <= lastRun + runQuantity; i++) {
+    for (var i = lastRun + 1; i <= lastRun + parseInt(runQuantity, 10); i++) {
         console.info(`run ${i}:`);
 
         const measuresStoppers = otherContainers.map(getContainerStats(measureName, i));

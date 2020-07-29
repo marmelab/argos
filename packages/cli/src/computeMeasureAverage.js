@@ -15,11 +15,41 @@ const computeMeasureAverage = async measureName => {
                     measureName: 1,
                     run: 1,
                     containerName: 1,
-                    date: 1,
-                    time: { $round: [{ $divide: ['$time', 1000] }] },
+                    time: 1,
                     cpu: 1,
                     memory: 1,
                     network: 1,
+                },
+            },
+            {
+                $group: {
+                    _id: { containerName: '$containerName', run: '$run' },
+                    measureName: { $first: '$measureName' },
+                    run: { $first: '$run' },
+                    initialTime: { $min: '$time' },
+                    data: {
+                        $push: {
+                            cpu: '$cpu',
+                            memory: '$memory',
+                            network: '$network',
+                            time: '$time',
+                        },
+                    },
+                },
+            },
+            {
+                $unwind: '$data',
+            },
+            {
+                $project: {
+                    _id: 0,
+                    measureName: 1,
+                    containerName: '$_id.containerName',
+                    run: '$_id.run',
+                    time: { $subtract: ['$data.time', '$initialTime'] },
+                    cpu: '$data.cpu',
+                    memory: '$data.memory',
+                    network: '$data.network',
                 },
             },
             {
