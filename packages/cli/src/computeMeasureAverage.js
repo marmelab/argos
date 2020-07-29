@@ -93,8 +93,6 @@ const computeMeasureAverage = async measureName => {
         ])
         .toArray();
 
-    //console.log('averageMeasures', averageMeasures);
-
     await reportCollection.insertMany(averageMeasures);
 };
 
