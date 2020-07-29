@@ -25,7 +25,7 @@ const run = async () => {
         console.info(`run ${i}:`);
 
         const measuresStoppers = otherContainers.map(getContainerStats(measureName, i));
-        const stopListening = onStartContainer(getContainerStats(measureName, i));
+        const stopListening = onStartContainer(otherContainers, getContainerStats(measureName, i));
         await exec(command).catch(console.warn);
         stopListening();
         measuresStoppers.map(stop => stop());

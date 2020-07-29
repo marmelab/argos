@@ -13,7 +13,8 @@ const jsonParse = data => {
     }
 };
 
-const onStartContainer = eventListener => {
+const onStartContainer = (otherContainers, eventListener) => {
+    listenedContainer = otherContainers;
     const child = spawn('curl', [
         '-v',
         '--unix-socket',
