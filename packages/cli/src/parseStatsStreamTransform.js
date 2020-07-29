@@ -49,7 +49,6 @@ const parseStatsTransform = (containerName, measureName, run) => {
     const getCurrentTransmittedNetwork = initGetValueIncrement();
 
     const getPreviousRawIO = initGetPreviousValue();
-    let startTime;
 
     return new stream.Transform({
         transform(chunk, encoding, next) {

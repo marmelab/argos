@@ -7,68 +7,15 @@ const computeMeasureAverage = async measureName => {
 
     const reportCollection = db.collection('report');
 
-    const temp = await measureCollection
-        .aggregate([
-            { $match: { measureName } },
-            {
-                $lookup: {
-                    from: 'measure',
-                    localField: 'time',
-                    foreignField: 'time',
-                    /*let: { containerName2: '$containerName', measureName2: '$measureName', run2: '$run' },
-                    pipeline: [
-                        { $match: { containerName: '$$containerName2', measureName: '$$measureName2', run: '$$run2' } },
-                        { $project: { _id: 0, initialTime: '$time' } },
-                    ],*/
-                    as: 'initialTime',
-                },
-            },
-        ])
-        .toArray();
-
-    console.log('temp', temp);
-
-    /* const temp2 = await measureCollection
-        .aggregate([
-            { $match: { measureName } },
-            {
-                $lookup: {
-                    from: 'measure',
-                    localField: 'run',
-                    foreignField: 'run',
-                    let: { containerName2: '$containerName', measureName2: '$measureName', run2: '$run' },
-                    pipeline: [
-                        { $match: { containerName: '$$containerName2', measureName: '$$measureName2', run: '$$run2' } },
-                        { $project: { _id: 0, initialTime: '$time' } },
-                    ],
-                    as: 'initialTime',
-                },
-            },
-        ])
-        .toArray();
-
-    console.log('temp', temp2); */
-
     const averageMeasures = await measureCollection
         .aggregate([
             { $match: { measureName } },
-            {
-                $lookup: {
-                    from: 'measure',
-                    pipeline: [
-                        { $match: { containerName: '$containerName', measureName: '$measureName', run: '$run' } },
-                        { $project: { _id: 0, initialTime: '$time' } },
-                    ],
-                    as: 'initialTime',
-                },
-            },
             {
                 $project: {
                     measureName: 1,
                     run: 1,
                     containerName: 1,
-                    time: { $subtract: ['$time', 2] },
-                    initialTime: '$initialTime',
+                    time: 1,
                     cpu: 1,
                     memory: 1,
                     network: 1,
@@ -76,7 +23,38 @@ const computeMeasureAverage = async measureName => {
             },
             {
                 $group: {
-                    _id: { containerName: '$containerName', time: '$time', initialTime: '$initialTime' },
+                    _id: { containerName: '$containerName', run: '$run' },
+                    measureName: { $first: '$measureName' },
+                    run: { $first: '$run' },
+                    initialTime: { $min: '$time' },
+                    data: {
+                        $push: {
+                            cpu: '$cpu',
+                            memory: '$memory',
+                            network: '$network',
+                            time: '$time',
+                        },
+                    },
+                },
+            },
+            {
+                $unwind: '$data',
+            },
+            {
+                $project: {
+                    _id: 0,
+                    measureName: 1,
+                    containerName: '$_id.containerName',
+                    run: '$_id.run',
+                    time: { $subtract: ['$data.time', '$initialTime'] },
+                    cpu: '$data.cpu',
+                    memory: '$data.memory',
+                    network: '$data.network',
+                },
+            },
+            {
+                $group: {
+                    _id: { containerName: '$containerName', time: '$time' },
                     measureName: { $first: '$measureName' },
 
                     avgCpuPercentage: { $avg: '$cpu.cpuPercentage' },
@@ -102,7 +80,6 @@ const computeMeasureAverage = async measureName => {
                     measureName: 1,
                     containerName: '$_id.containerName',
                     time: '$_id.time',
-                    initialTime: '$_id.initialTime',
                     cpuPercentage: '$avgCpuPercentage',
                     cpuPercentageArea: ['$minCpuPercentage', '$maxCpuPercentage'],
                     memoryUsage: '$avgMemoryUsage',
