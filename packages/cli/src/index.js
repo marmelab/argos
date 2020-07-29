@@ -8,7 +8,7 @@ const run = async () => {
     const measureName = process.env.NAME;
     const setupCommand = process.env.SETUP_COMMAND;
     const command = process.env.COMMAND;
-    const runQuantity = process.env.RUN_QUANTITY;
+    const runQuantity = parseInt(process.env.RUN_QUANTITY || 5, 10);
     const otherContainers = process.env.OTHER_CONTAINERS ? process.env.OTHER_CONTAINERS.split(',') : [];
 
     const lastRun = await getLastRun(measureName);
