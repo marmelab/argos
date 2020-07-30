@@ -13,7 +13,8 @@ const jsonParse = data => {
     }
 };
 
-const onStartContainer = eventListener => {
+const onStartContainer = (otherContainers, eventListener) => {
+    listenedContainer = otherContainers;
     const child = spawn('curl', [
         '-v',
         '--unix-socket',
@@ -21,7 +22,7 @@ const onStartContainer = eventListener => {
         `http://localhost/events?filters=${encodeURIComponent(
             JSON.stringify({
                 type: ['container'],
-                event: ['create', 'start'],
+                event: ['start', 'exec_start'],
             }),
         )}`,
     ]);

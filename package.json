@@ -8,8 +8,7 @@
     "scripts": {
         "cs-fix": "prettier --write '**/*.js'",
         "cypress:open": "cypress open",
-        "cypress:run": "cypress run",
-        "start": "lerna run start"
+        "cypress:run": "cypress run"
     },
     "dependencies": {
         "nodemon": "^2.0.2",
@@ -19,7 +18,6 @@
         "@material-ui/styles": "^4.10.0"
     },
     "devDependencies": {
-        "lerna": "3.20.2",
         "@babel/core": "^7.5.5",
         "@babel/preset-env": "^7.5.5",
         "@babel/preset-react": "^7.0.0",
