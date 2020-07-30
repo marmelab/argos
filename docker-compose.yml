@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
     server:
-        build: ./packages/cli
+        build: ./packages/server
         environment:
             MONGO_HOST: mongo
             MONGO_PORT: 27017
@@ -14,7 +14,7 @@ services:
         ports:
             - 3003:3003
         working_dir: '/app'
-        command: yarn start
+        command: yarn --cwd ./packages/server start
         links:
             - mongo
         depends_on:

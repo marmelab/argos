@@ -25,7 +25,7 @@ const startServer = async () => {
     server.use(router.routes()).use(router.allowedMethods());
 
     const compiler = webpack(webpackConfig);
-    const middleware = await koaWebpack({ compiler });
+    const middleware = await koaWebpack({ compiler, hotClient: false });
 
     server.use(middleware);
 

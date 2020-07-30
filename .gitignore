@@ -4,3 +4,4 @@ data
 dump/db
 dump/admin
 dumpMongo
+dist
