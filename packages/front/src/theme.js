@@ -10,7 +10,8 @@ export default {
             chart: '#ff4d4f',
         },
         network: {
-            chart: '#ffc253',
+            chartReceived: '#afc253',
+            chartTransmitted: '#ffc253',
         },
         trail: {
             chart: '#aaa',

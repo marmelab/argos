@@ -8,7 +8,6 @@ import { createSummary } from './summaryTools';
 
 const SummaryChart = ({ selectedRun, hiddenMetrics = [] }) => {
     const summary = createSummary(selectedRun, hiddenMetrics);
-
     return (
         <div>
             <Typography variant="h6">Summary</Typography>

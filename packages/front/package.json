@@ -12,7 +12,6 @@
         "emotion": "10.0.27",
         "react": "16.13.0",
         "react-dom": "16.13.0",
-        "recharts": "1.8.5",
         "@material-ui/core": "^4.10.0",
         "@material-ui/styles": "^4.10.0",
         "bizcharts": "^4.0.7"
