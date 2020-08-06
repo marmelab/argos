@@ -5,7 +5,7 @@ import { Card, CardContent } from '@material-ui/core';
 import ContainerChart from './ContainerChart';
 import { useFetch } from './useFetch';
 
-export const DetailStats = ({ container, setData, measureToTest }) => {
+const DetailStats = ({ container, setData, measureToTest }) => {
     const { isLoading, response } = useFetch(`http://localhost:3003/measure/${container}`);
 
     useEffect(() => {
@@ -52,3 +52,5 @@ export const DetailStats = ({ container, setData, measureToTest }) => {
         </StatContainer>
     );
 };
+
+export default DetailStats;

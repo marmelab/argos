@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { css } from 'emotion';
 
-import { DetailStats } from './DetailStats';
-import { GlobalStat } from './GlobalStat';
+import DetailStats from './DetailStats';
+import GlobalStat from './GlobalStat';
 import { useFetch } from './useFetch';
 
 const getQueryVariable = variable => {
