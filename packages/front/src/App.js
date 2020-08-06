@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { css } from 'emotion';
 
-import { Stats } from './Stats';
+import { DetailStats } from './DetailStats';
 import { GlobalStat } from './GlobalStat';
 import { useFetch } from './useFetch';
 
@@ -54,7 +54,11 @@ export const App = () => {
             >
                 {response.map(containerName => {
                     return (
-                        <Stats container={containerName} setData={handleSetGlobalData} measureToTest={measureToTest} />
+                        <DetailStats
+                            container={containerName}
+                            setData={handleSetGlobalData}
+                            measureToTest={measureToTest}
+                        />
                     );
                 })}
             </div>
