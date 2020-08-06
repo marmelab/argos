@@ -3,6 +3,7 @@ import { css } from 'emotion';
 import { Card, CardContent, Typography } from '@material-ui/core';
 
 import { Chart } from './Chart';
+import ContainerChart from './ContainerChart';
 import { useFetch } from './useFetch';
 
 function displayOctets(value) {
@@ -98,47 +99,9 @@ export const Stats = ({ container, setData, measureToTest }) => {
 
     return (
         <StatContainer>
-            <Title>{container}</Title>
             <LeftPanel>
                 <ChartContainer>
-                    <Chart
-                        title="cpu percentage"
-                        data={response}
-                        lineKeys={measures}
-                        avgValueKey="cpuPercentage"
-                        valuesKey="cpuPercentageArea"
-                        yTickFormatter={v => v && `${v.toFixed(2)}%`}
-                    />
-                </ChartContainer>
-                <ChartContainer>
-                    <Chart
-                        title="memory usage"
-                        data={response}
-                        lineKeys={measures}
-                        avgValueKey="memoryUsage"
-                        valuesKey="memoryUsageArea"
-                        yTickFormatter={displayOctets}
-                    />
-                </ChartContainer>
-                <ChartContainer>
-                    <Chart
-                        title="network received"
-                        data={response}
-                        lineKeys={measures}
-                        avgValueKey="networkReceived"
-                        valuesKey="networkReceivedArea"
-                        yTickFormatter={displayOctets}
-                    />
-                </ChartContainer>
-                <ChartContainer>
-                    <Chart
-                        title="network transmitted"
-                        data={response}
-                        lineKeys={measures}
-                        avgValueKey="networkTransmitted"
-                        valuesKey="networkTransmittedArea"
-                        yTickFormatter={displayOctets}
-                    />
+                    <ContainerChart containerName={container} allData={response} measureToTest={measureToTest} />
                 </ChartContainer>
             </LeftPanel>
         </StatContainer>
