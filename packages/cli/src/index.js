@@ -33,7 +33,7 @@ const run = async () => {
 
     await computeMeasureAverage(measureName);
 
-    console.log(`DONE`);
+    console.log(`DONE for ${measureName}`);
     process.exit(0);
 };
 

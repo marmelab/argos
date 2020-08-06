@@ -45,10 +45,12 @@ const getScaleDivider = value => {
 
 const ContainerChart = ({ containerName, allData, measureToTest }) => {
     // Extract current values
-    const data = allData.map(row => ({
-        time: row.time,
-        ...row.measures[measureToTest],
-    }));
+    const data = allData
+        .filter(row => !!row.measures[measureToTest])
+        .map(row => ({
+            time: row.time,
+            ...row.measures[measureToTest],
+        }));
 
     // Get max values to set scale
     const cpuMax = Math.max(100, ...data.map(row => row.cpuPercentage));
