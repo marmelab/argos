@@ -4,6 +4,7 @@ import { css } from 'emotion';
 import DetailStats from './DetailStats';
 import GlobalStat from './GlobalStat';
 import { useFetch } from './useFetch';
+import { apiUrl } from './config';
 
 const getQueryVariable = variable => {
     var query = window.location.search.substring(1);
@@ -18,7 +19,7 @@ const getQueryVariable = variable => {
 };
 
 export const App = () => {
-    const { isLoading, response } = useFetch('http://localhost:3003/containers');
+    const { isLoading, response } = useFetch(`${apiUrl}/containers`);
     const [globalData, setGlobalData] = useState({});
 
     const measureToTest = getQueryVariable('look') || 'arte_liquid';

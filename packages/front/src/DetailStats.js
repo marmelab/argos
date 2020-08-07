@@ -4,11 +4,12 @@ import { Card, CardContent } from '@material-ui/core';
 
 import ContainerChart from './ContainerChart';
 import { useFetch } from './useFetch';
+import { apiUrl } from './config';
 
 const cleanData = data => data.filter(measure => measure.time !== null && measure._id !== null);
 
 const DetailStats = ({ container, setData, measureToTest }) => {
-    const { isLoading, response } = useFetch(`http://localhost:3003/measure/${container}`);
+    const { isLoading, response } = useFetch(`${apiUrl}/measure/${container}`);
 
     useEffect(() => {
         response && setData(container, cleanData(response));

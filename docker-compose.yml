@@ -9,6 +9,7 @@ services:
             MONGO_USER: root
             MONGO_PASSWORD: secret
             WAIT_HOSTS: mongo:27017
+            APIURL: ${APIURL}
         volumes:
             - ./:/app
         ports:
