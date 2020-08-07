@@ -20,6 +20,10 @@ const DetailStats = ({ container, setData, measureToTest }) => {
 
     const data = cleanData(response);
 
+    if (data.length === 0) {
+        return null;
+    }
+
     const measures = Object.keys(data[0].measures);
 
     if (!measures.includes(measureToTest)) {
