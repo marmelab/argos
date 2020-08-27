@@ -61,9 +61,9 @@ const computeMeasureAverage = async measureName => {
                     minCpuPercentage: { $min: '$cpu.cpuPercentage' },
                     maxCpuPercentage: { $max: '$cpu.cpuPercentage' },
 
-                    avgMemoryUsage: { $avg: '$memory.usage' },
-                    minMemoryUsage: { $min: '$memory.usage' },
-                    maxMemoryUsage: { $max: '$memory.usage' },
+                    avgMemoryUsage: { $avg: { $subtract: ['$memory.usage', '$memory.cache'] } },
+                    minMemoryUsage: { $min: { $subtract: ['$memory.usage', '$memory.cache'] } },
+                    maxMemoryUsage: { $max: { $subtract: ['$memory.usage', '$memory.cache'] } },
 
                     avgNetworkCurrentReceived: { $avg: '$network.currentReceived' },
                     minNetworkCurrentReceived: { $min: '$network.currentReceived' },
