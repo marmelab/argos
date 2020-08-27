@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { css } from 'emotion';
 
 import DetailStats from './DetailStats';
+import DetailMesure from './DetailMesure';
 import GlobalStat from './GlobalStat';
 import { useFetch } from './useFetch';
 import { apiUrl } from './config';
@@ -33,6 +34,12 @@ export const App = () => {
 
     if (isLoading || !response) {
         return '...';
+    }
+
+    const containerToCheck = getQueryVariable('container');
+    const runToCheck = getQueryVariable('run');
+    if (containerToCheck && runToCheck) {
+        return <DetailMesure containerName={containerToCheck} measureToTest={measureToTest} run={runToCheck} />;
     }
 
     return (
