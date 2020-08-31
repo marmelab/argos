@@ -10,6 +10,7 @@ const getOnlineCpus = get(['cpu_stats', 'online_cpus']);
 
 const getMemoryUsage = get(['memory_stats', 'usage']);
 const getMemoryMaxUsage = get(['memory_stats', 'max_usage']);
+const getMemoryStats = get(['memory_stats', 'stats']);
 const getMemoryLimit = get(['memory_stats', 'limit']);
 
 const getReceivedNetwork = get(['networks', 'eth0', 'rx_bytes']);
@@ -98,6 +99,9 @@ const parseStatsTransform = (containerName, measureName, run) => {
                     };
                 }, {});
 
+                const memoryCache = getMemoryStats(json).cache;
+                const memoryRSS = getMemoryStats(json).rss;
+
                 const result = {
                     measureName,
                     run,
@@ -112,6 +116,8 @@ const parseStatsTransform = (containerName, measureName, run) => {
                     memory: {
                         usage: getMemoryUsage(json),
                         maxUsage: getMemoryMaxUsage(json),
+                        cache: memoryCache,
+                        rss: memoryRSS,
                         limit: getMemoryLimit(json),
                     },
                     network: {
