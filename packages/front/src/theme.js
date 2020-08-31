@@ -5,13 +5,16 @@ export default {
         selected: { background: '#a4d6ff' },
         cpu: {
             chart: '#128512',
+            trail: '#8ee68e',
         },
         mem: {
             chart: '#ff4d4f',
+            trail: '#ed8a8b',
         },
         network: {
             chartReceived: '#afc253',
             chartTransmitted: '#ffc253',
+            trail: '#f2cd8a',
         },
         trail: {
             chart: '#aaa',
