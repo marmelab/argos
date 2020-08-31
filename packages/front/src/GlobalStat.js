@@ -16,12 +16,7 @@ const GlobalStat = ({ data, measureToTest }) => {
 };
 
 const CardContainer = ({ children }) => (
-    <Card
-        className={css`
-            margin: 1em;
-            width: calc(75% - 2em);
-        `}
-    >
+    <Card>
         <CardContent>{children}</CardContent>
     </Card>
 );

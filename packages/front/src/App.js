@@ -63,7 +63,17 @@ export const App = () => {
                     );
                 })}
             </div>
-            <GlobalStat data={globalData} measureToTest={measureToTest} />
+            <div
+                className={css`
+                    position: sticky;
+                    top: 1em;
+                    margin: 1em;
+                    width: calc(75% - 2em);
+                    max-height: 500px;
+                `}
+            >
+                <GlobalStat data={globalData} measureToTest={measureToTest} />
+            </div>
         </div>
     );
 };
