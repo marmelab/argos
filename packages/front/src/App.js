@@ -19,10 +19,9 @@ const getQueryVariable = variable => {
 };
 
 export const App = () => {
-    const { isLoading, response } = useFetch(`${apiUrl}/containers`);
-    const [globalData, setGlobalData] = useState({});
-
     const measureToTest = getQueryVariable('look') || 'arte_liquid';
+    const { isLoading, response } = useFetch(`${apiUrl}/containers/${measureToTest}`);
+    const [globalData, setGlobalData] = useState({});
 
     const handleSetGlobalData = useCallback(
         (containerName, data) => {

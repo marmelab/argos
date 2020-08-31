@@ -11,6 +11,11 @@ const server = new Koa();
 
 const router = new Router();
 
+router.get('/containers/:measure', async ctx => {
+    ctx.body = await reportRepository.getContainersForMeasure(ctx.params.measure);
+    ctx.status = 200;
+});
+
 router.get('/containers', async ctx => {
     ctx.body = await reportRepository.getContainers();
     ctx.status = 200;

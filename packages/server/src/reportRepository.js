@@ -12,6 +12,12 @@ const getContainers = async () => {
     return collection.distinct('containerName');
 };
 
+const getContainersForMeasure = async measure => {
+    const collection = await getReportCollection();
+
+    return collection.distinct('containerName', { measureName: measure });
+};
+
 const getReportForContainer = async containerName => {
     const collection = await getReportCollection();
 
@@ -46,5 +52,6 @@ const getReportForContainer = async containerName => {
 
 module.exports = {
     getContainers,
+    getContainersForMeasure,
     getReportForContainer,
 };
