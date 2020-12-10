@@ -1,5 +1,7 @@
 # ARGOS
 
+ ![GitHub top language](https://img.shields.io/github/languages/top/marmelab/argos.svg) ![GitHub contributors](https://img.shields.io/github/contributors/marmelab/argos.svg) ![License](https://img.shields.io/github/license/marmelab/argos.svg) ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
+
 Auditing Reporter for Greener Ops Strategies
 
 Tool to measure consumption of a given Docker command and see its performance evolution.
@@ -49,3 +51,25 @@ Use `make stop` to stop the server and the database.
 ### See the Logs
 
 If the app is not workings as expected, you can see the logs by using `make logs`.
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+```bash
+make cypress open
+```
+
+To learn more about the contributions to this project, consult the [contribution guide](/.github/CONTRIBUTING.md).
+
+## Team
+
+[![ThieryMichel](https://avatars3.githubusercontent.com/u/4034399?s=96&amp;v=4)](https://github.com/ThieryMichel) | [![JulienMattiussi](https://avatars2.githubusercontent.com/u/39904906?s=96&amp;v=4)](https://github.com/JulienMattiussi) | [![floo51](https://avatars3.githubusercontent.com/u/2562270?s=96&amp;v=4)](https://github.com/floo51)| [![Alan Poulain](https://avatars3.githubusercontent.com/u/10920253?s=96&u=936bd5325071ddb7fa1123b4b1eab1f737d282b1&v=4)](https://github.com/alanpoulain)
+:---:|:---:|:---:|:---:
+[ThieryMichel](https://github.com/ThieryMichel) | [JulienM](https://github.com/JulienMattiussi) | [Florian F.](https://github.com/floo51) | [Alan Poulain](https://github.com/alanpoulain)
+
+## License
+
+Argos is licensed under the [MIT License](LICENSE), courtesy of [Marmelab](http://marmelab.com).
